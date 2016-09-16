@@ -1,0 +1,5 @@
+<resources>
+    <bitmaps>
+        <bitmap id="id_pc" filename="images/pc.png" />
+    </bitmaps>
+</resources>

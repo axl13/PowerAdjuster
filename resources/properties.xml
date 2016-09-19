@@ -1,22 +1,25 @@
 <resources>
-
     <properties>
         <property id="duration" type="number">5</property>
-        <property id="multiplier" type="float">1.03</property>
+        <property id="multiplier" type="float">1.0</property>
+        <property id="slope" type="string">192:202,286:306,333:351,388:407,616:644,1068:1079</property>
     </properties>
 
     <strings>
-       <string id="duration_title">Average power over:</string>
-       <string id="multiplier_title">Power multiplier:</string>
+       <string id="duration_title">Average power over (sec)</string>
+       <string id="multiplier_title">Power multiplier</string>
+       <string id="slope_title">Comma separated power pairs (w)</string>  
     </strings>
 
     <settings>
         <setting propertyKey="duration" title="duration_title">
+            <settingConfig type="numeric" min="1" max="600"/>
+        </setting>
+		<setting propertyKey="multiplier" title="multiplier_title">
             <settingConfig type="numeric" />
         </setting>
-
-        <setting propertyKey="multiplier" title="multiplier_title">
-            <settingConfig type="numeric" />
+        <setting propertyKey="slope" title="slope_title">
+            <settingConfig type="alphaNumeric" />
         </setting>
     </settings>
 </resources>

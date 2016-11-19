@@ -2,24 +2,29 @@
     <properties>
         <property id="duration" type="number">5</property>
         <property id="multiplier" type="float">1.0</property>
-        <property id="slope" type="string">192:202,286:306,333:351,388:407,616:644,1068:1079</property>
+        <property id="slope" type="string">100:100,300:300,400:400,600:600,800:800</property>
+        <property id="altPower_prop" type="boolean">true</property>
     </properties>
 
     <strings>
        <string id="duration_title">Average power over (sec)</string>
        <string id="multiplier_title">Power multiplier</string>
-       <string id="slope_title">Comma separated power pairs (w)</string>  
+       <string id="slope_title">Comma separated power pairs for nonlinear regression (w1:w1',w2:w2')</string> 
+       <string id="altPower_title">Adjust for altitude</string> 
     </strings>
 
     <settings>
-        <setting propertyKey="duration" title="duration_title">
+        <setting propertyKey="@Properties.duration" title="duration_title">
             <settingConfig type="numeric" min="1" max="600"/>
         </setting>
-		<setting propertyKey="multiplier" title="multiplier_title">
+		<setting propertyKey="@Properties.multiplier" title="multiplier_title">
             <settingConfig type="numeric" />
         </setting>
-        <setting propertyKey="slope" title="slope_title">
+        <setting propertyKey="@Properties.slope" title="slope_title">
             <settingConfig type="alphaNumeric" />
+        </setting>
+        <setting propertyKey="@Properties.altPower_prop" title="altPower_title">
+            <settingConfig type="boolean" />
         </setting>
     </settings>
 </resources>

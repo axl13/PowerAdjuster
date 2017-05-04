@@ -124,7 +124,7 @@ class DataField extends Ui.SimpleDataField {
         //Sys.println(POWER_MULTIPLIER);
         //Sys.println(Application.getApp().getProperty("slope"));
         Ui.SimpleDataField.initialize();
-        label = "adjPwr. " + DURATION.toString() + "s" + (ALTPOWER ? " ⛰" : "");
+        label = "adjPwr. " + DURATION.toString() + "s" + (ALTPOWER ? ",alt" : "");
         for( var i = 0; i < DURATION; i += 1 ) {
             power_array[i] = 0;
         }

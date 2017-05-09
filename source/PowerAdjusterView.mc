@@ -117,6 +117,8 @@ class DataField extends Ui.SimpleDataField {
     const DURATION = Application.getApp().getProperty("duration");
     const SLOPE = new Slope(Application.getApp().getProperty("slope"));
     const ALTPOWER = Application.getApp().getProperty("altPower_prop");
+    const HOMEALT = Application.getApp().getProperty("homeElevation_prop");
+    const HOMEALT_FACTOR = altPower(1.0, HOMEALT);
     var power_array = new [DURATION];
 
     // Constructor
@@ -148,7 +150,7 @@ class DataField extends Ui.SimpleDataField {
         //Sys.println(info.currentPower);
         //Sys.println(watts);
         if (ALTPOWER) {
-          watts = altPower(watts, info.altitude);
+          watts = altPower(watts, info.altitude) / HOMEALT_FACTOR;
           //Sys.println(watts);
           //Sys.println(info.altitude);
         }

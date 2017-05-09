@@ -4,7 +4,7 @@
         <property id="multiplier" type="float">1.0</property>
         <property id="slope" type="string">100:100,300:300,400:400,600:600,800:800</property>
         <property id="altPower_prop" type="boolean">true</property>
-        <property id="homeElevation_prop” type="number">0</property>
+        <property id="homeElevation_prop" type="number">0</property>
     </properties>
 
     <strings>
@@ -28,8 +28,8 @@
         <setting propertyKey="@Properties.altPower_prop" title="altPower_title">
             <settingConfig type="boolean" />
         </setting>
-        <setting propertyKey="@Properties.homeElevation” title=“homeElevation_title">
-            <settingConfig type=“numeric” min=“0“ max=“9000” />
+        <setting propertyKey="@Properties.homeElevation_prop" title="homeElevation_title">
+            <settingConfig type="numeric" min="0" max="9000" />
         </setting>
     </settings>
 </resources>

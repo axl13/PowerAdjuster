@@ -118,6 +118,8 @@ class DataField extends Ui.SimpleDataField {
     const SLOPE = new Slope(Application.getApp().getProperty("slope"));
     const ALTPOWER = Application.getApp().getProperty("altPower_prop");
     var power_array = new [DURATION];
+    var power_array_next_index = 0;
+    var power_sum = 0;
 
     // Constructor
     function initialize() {
@@ -128,23 +130,28 @@ class DataField extends Ui.SimpleDataField {
         for( var i = 0; i < DURATION; i += 1 ) {
             power_array[i] = 0;
         }
+        power_array_next_index = 0;
+        power_sum = 0;
     }
 
     function compute(info) {
         var avgPower = 0;
-        var tmpPower = 0;
 
         if(info.currentPower != null) {
             avgPower = POWER_MULTIPLIER * SLOPE.interpolate(info.currentPower);
         }
-        for( var i = 0; i < DURATION - 1; i += 1 ) {
-            tmpPower += power_array[i];
-            power_array[i] = power_array[i+1];
+
+        power_sum -= power_array[power_array_next_index];
+        power_array[power_array_next_index] = avgPower;
+        power_sum += avgPower;
+        ++power_array_next_index;
+        if (power_array_next_index == DURATION) {
+            power_array_next_index = 0;
         }
-        power_array[DURATION-1] = avgPower;
+
         //Sys.println(POWER_MULTIPLIER);
-        //Sys.println((tmpPower+avgPower)/DURATION);
-        var watts = (tmpPower+avgPower)/DURATION;
+        Sys.println("" + power_sum + "," + avgPower + "," + DURATION + "," + info.altitude);
+        var watts = power_sum / DURATION;
         //Sys.println(info.currentPower);
         //Sys.println(watts);
         if (ALTPOWER) {

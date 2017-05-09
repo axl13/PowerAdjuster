@@ -150,7 +150,7 @@ class DataField extends Ui.SimpleDataField {
         }
 
         //Sys.println(POWER_MULTIPLIER);
-        Sys.println("" + power_sum + "," + avgPower + "," + DURATION + "," + info.altitude);
+        // Sys.println("" + power_sum + "," + avgPower + "," + DURATION + "," + info.altitude);
         var watts = power_sum / DURATION;
         //Sys.println(info.currentPower);
         //Sys.println(watts);

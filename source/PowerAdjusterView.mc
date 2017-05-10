@@ -142,6 +142,11 @@ class DataField extends Ui.SimpleDataField {
 
         if(info.currentPower != null) {
             avgPower = POWER_MULTIPLIER * SLOPE.interpolate(info.currentPower);
+            if (ALTPOWER) {
+                avgPower = altPower(avgPower, info.altitude) / homealt_factor;
+            }
+        } else {
+            return "-";
         }
 
         power_sum -= power_array[power_array_next_index];
@@ -157,11 +162,6 @@ class DataField extends Ui.SimpleDataField {
         var watts = power_sum / DURATION;
         //Sys.println(info.currentPower);
         //Sys.println(watts);
-        if (ALTPOWER) {
-          watts = altPower(watts, info.altitude) / homealt_factor;
-          //Sys.println(watts);
-          //Sys.println(info.altitude);
-        }
         return Math.round(watts).toNumber();
     }
 }

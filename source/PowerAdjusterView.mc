@@ -117,6 +117,8 @@ class DataField extends Ui.SimpleDataField {
     const DURATION = Application.getApp().getProperty("duration");
     const SLOPE = new Slope(Application.getApp().getProperty("slope"));
     const ALTPOWER = Application.getApp().getProperty("altPower_prop");
+    const HOMEALT = Application.getApp().getProperty("homeElevation_prop");
+    var homealt_factor = 1;
     var power_array = new [DURATION];
     var power_array_next_index = 0;
     var power_sum = 0;
@@ -132,6 +134,7 @@ class DataField extends Ui.SimpleDataField {
         }
         power_array_next_index = 0;
         power_sum = 0;
+        homealt_factor = altPower(1.0, HOMEALT);
     }
 
     function compute(info) {
@@ -139,6 +142,11 @@ class DataField extends Ui.SimpleDataField {
 
         if(info.currentPower != null) {
             avgPower = POWER_MULTIPLIER * SLOPE.interpolate(info.currentPower);
+            if (ALTPOWER) {
+                avgPower = altPower(avgPower, info.altitude) / homealt_factor;
+            }
+        } else {
+            return "-";
         }
 
         power_sum -= power_array[power_array_next_index];
@@ -154,11 +162,6 @@ class DataField extends Ui.SimpleDataField {
         var watts = power_sum / DURATION;
         //Sys.println(info.currentPower);
         //Sys.println(watts);
-        if (ALTPOWER) {
-          watts = altPower(watts, info.altitude);
-          //Sys.println(watts);
-          //Sys.println(info.altitude);
-        }
         return Math.round(watts).toNumber();
     }
 }

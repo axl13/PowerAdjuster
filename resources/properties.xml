@@ -17,7 +17,7 @@
 
     <settings>
         <setting propertyKey="@Properties.duration" title="duration_title">
-            <settingConfig type="numeric" min="1" max="600"/>
+            <settingConfig type="numeric" min="1" max="1800"/>
         </setting>
 		<setting propertyKey="@Properties.multiplier" title="multiplier_title">
             <settingConfig type="numeric" />

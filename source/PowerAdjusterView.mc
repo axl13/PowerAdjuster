@@ -3,30 +3,23 @@ using Toybox.System as Sys;
 using Toybox.Math as Math;
 
 
-function exp(x) {
-  x = 1.0 + x / 256.0;
-  x *= x; x *= x; x *= x; x *= x;
-  x *= x; x *= x; x *= x; x *= x;
-  return x;
-}
-
 function linear_interpolation(x0, y0, x1, y1, x) {
     var a = (y1 - y0).toFloat() / (x1 - x0);
     var b = -a*x0 + y0;
     return a * x + b;
 }
 
-function altPower(watts, alt) {
-    var a0  = -174.1448622d;
-    var a1  = 1.0899959d;
-    var a2  = -0.0015119d;
-    var a3  = 0.00000072674d;
+const a0 = -174.1448622d;
+const a1 = 1.0899959d;
+const a2 = -0.0015119d;
+const a3 = 0.00000072674d;
 
+function altPower(watts, alt) {
     if (alt > 0) {
       // pbar [mbar]= 0.76*EXP( -alt[m] / 7000 )*1000
-      var pbar = 0.76 * exp(alt / -7000.00) * 1000.00;
+      var pbar = 0.76 * Math.pow(Math.E, alt / -7000.00) * 1000.00;
       // %Vo2max= a0 + a1 * pbar + a2 * pbar ^2 + a3 * pbar ^3 (with pbar in mbar)
-      var vo2maxPCT = a0 + (a1 * pbar) + (a2 * Math.pow(pbar,2)) + (a3 * Math.pow(pbar,3));
+      var vo2maxPCT = a0 + pbar * (a1 + pbar * (a2 + a3 * pbar));
       return (watts / vo2maxPCT) * 100;
     } else {
       return watts;
@@ -113,25 +106,27 @@ class Slope {
 }
 
 class DataField extends Ui.SimpleDataField {
-    const POWER_MULTIPLIER = Application.getApp().getProperty("multiplier");
-    const DURATION = Application.getApp().getProperty("duration");
+    const POWER_MULTIPLIER = Application.getApp().getProperty("multiplier").toFloat();
+    const DURATION = Application.getApp().getProperty("duration").toNumber();
     const SLOPE = new Slope(Application.getApp().getProperty("slope"));
     const ALTPOWER = Application.getApp().getProperty("altPower_prop");
-    const HOMEALT = Application.getApp().getProperty("homeElevation_prop");
+    const HOMEALT = Application.getApp().getProperty("homeElevation_prop").toNumber();
     var homealt_factor = 1;
     var power_array = new [DURATION];
     var power_array_next_index = 0;
     var power_sum = 0;
+    var power_array_complete = false;
 
     // Constructor
     function initialize() {
         //Sys.println(POWER_MULTIPLIER);
         //Sys.println(Application.getApp().getProperty("slope"));
         Ui.SimpleDataField.initialize();
-        label = "adjPwr. " + DURATION.toString() + "s" + (ALTPOWER ? ",alt" : "");
+        label = "adjPwr. " + DURATION.toString() + "s" + (ALTPOWER ? ",a" : "");
         for( var i = 0; i < DURATION; i += 1 ) {
             power_array[i] = 0;
         }
+        power_array_complete = false;
         power_array_next_index = 0;
         power_sum = 0;
         homealt_factor = altPower(1.0, HOMEALT);
@@ -155,11 +150,12 @@ class DataField extends Ui.SimpleDataField {
         ++power_array_next_index;
         if (power_array_next_index == DURATION) {
             power_array_next_index = 0;
+            power_array_complete = true;
         }
 
         //Sys.println(POWER_MULTIPLIER);
         // Sys.println("" + power_sum + "," + avgPower + "," + DURATION + "," + info.altitude);
-        var watts = power_sum / DURATION;
+        var watts = power_sum / (power_array_complete ? DURATION : power_array_next_index);
         //Sys.println(info.currentPower);
         //Sys.println(watts);
         return Math.round(watts).toNumber();

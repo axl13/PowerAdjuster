@@ -1,6 +1,7 @@
 using Toybox.WatchUi as Ui;
 using Toybox.System as Sys;
 using Toybox.Math as Math;
+using Toybox.AntPlus as AntPlus;
 
 
 function linear_interpolation(x0, y0, x1, y1, x) {
@@ -110,19 +111,24 @@ class DataField extends Ui.SimpleDataField {
     const DURATION = Application.getApp().getProperty("duration").toNumber();
     const SLOPE = new Slope(Application.getApp().getProperty("slope"));
     const ALTPOWER = Application.getApp().getProperty("altPower_prop");
+    const PURE_POWER = Application.getApp().getProperty("purePower_prop");
     const HOMEALT = Application.getApp().getProperty("homeElevation_prop").toNumber();
     var homealt_factor = 1;
     var power_array = new [DURATION];
     var power_array_next_index = 0;
     var power_sum = 0;
     var power_array_complete = false;
+    var bikePower;
+    var bikePowerListener;
 
     // Constructor
     function initialize() {
         //Sys.println(POWER_MULTIPLIER);
         //Sys.println(Application.getApp().getProperty("slope"));
+        bikePowerListener = new AntPlus.BikePowerListener();
+        bikePower = new AntPlus.BikePower(bikePowerListener);
         Ui.SimpleDataField.initialize();
-        label = "adjPwr. " + DURATION.toString() + "s" + (ALTPOWER ? ",a" : "");
+        label = "adjPwr. " + DURATION.toString() + "s" + (ALTPOWER ? ",a" : "") + (PURE_POWER ? ",p" : "");
         for( var i = 0; i < DURATION; i += 1 ) {
             power_array[i] = 0;
         }
@@ -139,6 +145,17 @@ class DataField extends Ui.SimpleDataField {
             avgPower = POWER_MULTIPLIER * SLOPE.interpolate(info.currentPower);
             if (ALTPOWER) {
                 avgPower = altPower(avgPower, info.altitude) / homealt_factor;
+            }
+            if (PURE_POWER) {
+                var PB = bikePower.getPedalPowerBalance();
+                var TE = bikePower.getTorqueEffectivenessPedalSmoothness();
+                if (PB and TE) {
+                    var Er = TE.rightTorqueEffectiveness;
+                    var El = TE.leftTorqueEffectiveness;
+                    if (Er and El) {
+                       avgPower = (PB/Er + (100 - PB)/El) * avgPower;
+                    }
+                }
             }
         } else {
             return "-";

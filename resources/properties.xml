@@ -1,9 +1,10 @@
 <resources>
     <properties>
-        <property id="duration" type="number">5</property>
+        <property id="duration" type="number">6</property>
         <property id="multiplier" type="float">1.0</property>
         <property id="slope" type="string">100:100,300:300,400:400,600:600,800:800</property>
-        <property id="altPower_prop" type="boolean">true</property>
+        <property id="altPower_prop" type="boolean">false</property>
+        <property id="purePower_prop" type="boolean">true</property>
         <property id="homeElevation_prop" type="number">0</property>
     </properties>
 
@@ -12,6 +13,7 @@
        <string id="multiplier_title">Power multiplier</string>
        <string id="slope_title">Comma separated power pairs for nonlinear regression (w1:w1',w2:w2')</string> 
        <string id="altPower_title">Adjust for altitude</string>
+       <string id="purePower_title">Show Pure Power</string>
        <string id="homeElevation_title">Home altitude</string>
     </strings>
 
@@ -26,6 +28,9 @@
             <settingConfig type="alphaNumeric" />
         </setting>
         <setting propertyKey="@Properties.altPower_prop" title="altPower_title">
+            <settingConfig type="boolean" />
+        </setting>
+        <setting propertyKey="@Properties.purePower_prop" title="purePower_title">
             <settingConfig type="boolean" />
         </setting>
         <setting propertyKey="@Properties.homeElevation_prop" title="homeElevation_title">

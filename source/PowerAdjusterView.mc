@@ -143,9 +143,7 @@ class DataField extends Ui.SimpleDataField {
 
         if(info.currentPower != null) {
             avgPower = POWER_MULTIPLIER * SLOPE.interpolate(info.currentPower);
-            if (ALTPOWER) {
-                avgPower = altPower(avgPower, info.altitude) / homealt_factor;
-            }
+
             if (PURE_POWER) {
                 var PB = bikePower.getPedalPowerBalance();
                 var TE = bikePower.getTorqueEffectivenessPedalSmoothness();
@@ -156,6 +154,9 @@ class DataField extends Ui.SimpleDataField {
                        avgPower = (PB/Er + (100 - PB)/El) * avgPower;
                     }
                 }
+            }
+            if (ALTPOWER) {
+                avgPower = altPower(avgPower, info.altitude) / homealt_factor;
             }
         } else {
             return "-";

@@ -3,6 +3,10 @@ using Toybox.System as Sys;
 using Toybox.Math as Math;
 using Toybox.AntPlus as AntPlus;
 
+const a0 = -174.1448622d;
+const a1 = 1.0899959d;
+const a2 = -0.0015119d;
+const a3 = 0.00000072674d;
 
 function linear_interpolation(x0, y0, x1, y1, x) {
     var a = (y1 - y0).toFloat() / (x1 - x0);
@@ -10,13 +14,8 @@ function linear_interpolation(x0, y0, x1, y1, x) {
     return a * x + b;
 }
 
-const a0 = -174.1448622d;
-const a1 = 1.0899959d;
-const a2 = -0.0015119d;
-const a3 = 0.00000072674d;
-
 function altPower(watts, alt) {
-    if (alt > 0) {
+   if (alt > 0) {
       // pbar [mbar]= 0.76*EXP( -alt[m] / 7000 )*1000
       var pbar = 0.76 * Math.pow(Math.E, alt / -7000.00) * 1000.00;
       // %Vo2max= a0 + a1 * pbar + a2 * pbar ^2 + a3 * pbar ^3 (with pbar in mbar)
@@ -25,6 +24,10 @@ function altPower(watts, alt) {
     } else {
       return watts;
     }
+}
+
+function chkPcnt(percent) {
+  return (percent >= 0) and (percent <= 100);
 }
 
 class Slope {
@@ -40,13 +43,6 @@ class Slope {
         finally {
           valid = true;
         }
-
-        /*Sys.println(x_values.toString());
-        Sys.println(y_values.toString());
-        Sys.println(self.interpolate(190));
-        Sys.println(self.interpolate(280));
-        Sys.println(self.interpolate(330));
-        Sys.println(self.interpolate(400));*/
     }
 
     function getX(i) {
@@ -125,9 +121,9 @@ class DataField extends Ui.SimpleDataField {
     function initialize() {
         //Sys.println(POWER_MULTIPLIER);
         //Sys.println(Application.getApp().getProperty("slope"));
+        Ui.SimpleDataField.initialize();
         bikePowerListener = new AntPlus.BikePowerListener();
         bikePower = new AntPlus.BikePower(bikePowerListener);
-        Ui.SimpleDataField.initialize();
         label = "adjPwr. " + DURATION.toString() + "s" + (ALTPOWER ? ",a" : "") + (PURE_POWER ? ",p" : "");
         for( var i = 0; i < DURATION; i += 1 ) {
             power_array[i] = 0;
@@ -147,11 +143,12 @@ class DataField extends Ui.SimpleDataField {
             if (PURE_POWER) {
                 var PB = bikePower.getPedalPowerBalance();
                 var TE = bikePower.getTorqueEffectivenessPedalSmoothness();
-                if (PB and TE) {
+                if ((PB != null) and (TE != null)) {
+                    var PP = PB.pedalPowerPercent;
                     var Er = TE.rightTorqueEffectiveness;
                     var El = TE.leftTorqueEffectiveness;
-                    if (Er and El) {
-                       avgPower = (PB/Er + (100 - PB)/El) * avgPower;
+                    if ((chkPcnt(Er) and chkPcnt(El)) and chkPcnt(PP)) {
+                       avgPower = (PP/El + (100 - PP)/Er) * avgPower;
                     }
                 }
             }

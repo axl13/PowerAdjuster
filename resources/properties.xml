@@ -1,6 +1,6 @@
 <resources>
     <properties>
-        <property id="duration" type="number">6</property>
+        <property id="duration" type="number">3</property>
         <property id="multiplier" type="float">1.0</property>
         <property id="slope" type="string">100:100,300:300,400:400,600:600,800:800</property>
         <property id="altPower_prop" type="boolean">false</property>

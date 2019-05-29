@@ -2,7 +2,12 @@
     <iq:application entry="PowerAdjuster" id="692231147b8511e68b7786f30ca893d3" launcherIcon="@Drawables.LauncherIcon" minSdkVersion="3.0.0" name="@Strings.PowerAdjuster" type="datafield">
         <iq:products>
             <iq:product id="edge1030"/>
+            <iq:product id="edge1030bontrager"/>
+            <iq:product id="edge130"/>
+            <iq:product id="edge520plus"/>
+            <iq:product id="edge530"/>
             <iq:product id="edge820"/>
+            <iq:product id="edge830"/>
             <iq:product id="fenix5"/>
             <iq:product id="fenix5plus"/>
             <iq:product id="fenix5s"/>

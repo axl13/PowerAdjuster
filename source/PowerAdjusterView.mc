@@ -233,7 +233,7 @@ class PowerDataField extends Ui.DataField {
       View.onUpdate(dc);
       dc.setColor(color, color);
       dc.clear();
-        var l = Ui.View.findDrawableById("label");
+      var l = Ui.View.findDrawableById("label");
       l.setText(label);
       l.draw(dc); 
       var v = Ui.View.findDrawableById("value");

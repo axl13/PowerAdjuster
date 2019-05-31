@@ -1,4 +1,6 @@
 using Toybox.Application as App;
+using Toybox.WatchUi as Ui;
+
 
 class PowerAdjuster extends App.AppBase {
     function initialize() {
@@ -10,10 +12,15 @@ class PowerAdjuster extends App.AppBase {
     }
 
     function getInitialView() {
-        return [new DataField()];
+        return [new PowerDataField()];
     }
 
     function onStop(state) {
         return false;
+    }
+
+    function onSettingsChanged()
+    {
+        Ui.requestUpdate();
     }
 }

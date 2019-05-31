@@ -2,11 +2,23 @@ using Toybox.WatchUi as Ui;
 using Toybox.System as Sys;
 using Toybox.Math as Math;
 using Toybox.AntPlus as AntPlus;
+using Toybox.Graphics as Gfx;
+
 
 const a0 = -174.1448622d;
 const a1 = 1.0899959d;
 const a2 = -0.0015119d;
 const a3 = 0.00000072674d;
+const rainbow = [
+     Gfx.COLOR_LT_GRAY,
+     Gfx.COLOR_DK_BLUE,
+     Gfx.COLOR_BLUE,
+     Gfx.COLOR_GREEN,
+     Gfx.COLOR_YELLOW,
+     Gfx.COLOR_ORANGE,
+     Gfx.COLOR_RED,
+     Gfx.COLOR_DK_RED,
+     Gfx.COLOR_PURPLE ];
 
 function linear_interpolation(x0, y0, x1, y1, x) {
     var a = (y1 - y0).toFloat() / (x1 - x0);
@@ -87,7 +99,8 @@ class Slope {
         self.x_values.add(10000);
         self.y_values.add(10000);
     }
-
+    
+ 
     function interpolate(x) {
         var i = 0;
         while ((x > self.x_values[i]) && (i < self.x_values.size())) {
@@ -102,7 +115,7 @@ class Slope {
 
 }
 
-class DataField extends Ui.SimpleDataField {
+class PowerDataField extends Ui.DataField {
     const POWER_MULTIPLIER = Application.getApp().getProperty("multiplier").toFloat();
     const DURATION = Application.getApp().getProperty("duration").toNumber();
     const SLOPE = new Slope(Application.getApp().getProperty("slope"));
@@ -116,22 +129,56 @@ class DataField extends Ui.SimpleDataField {
     var power_array_complete = false;
     var bikePower;
     var bikePowerListener;
+    var label;
+    var my_zones = [0];
+    var rainbow_ratio;
+    
+    hidden var powerValue;
+    
+    function MyZonesToDict(myzones_string)  {
+       var p;
+       myzones_string += ",";
+       //Sys.println(myzones_string);
+       p = myzones_string.find(",");
+       while (p != null) {
+         self.my_zones.add(myzones_string.substring(0, p).toNumber());
+         myzones_string = myzones_string.substring(p+1, myzones_string.length());
+         p = myzones_string.find(",");
+       }
+       rainbow_ratio = (rainbow.size()-1)/my_zones.size();
+    }
+    
+    function getPowerZone(power) {
+      var i;
+      for(i = 0; i < my_zones.size(); i++) {
+        if(power < my_zones[i]) { break; }
+      }
+      return i;
+    }
+        
 
+    function ColorMyZone(zone) {
+      // Let's be flexible with number of zones.
+      return rainbow[zone * rainbow_ratio];
+    }
+     
     // Constructor
     function initialize() {
         //Sys.println(POWER_MULTIPLIER);
         //Sys.println(Application.getApp().getProperty("slope"));
-        Ui.SimpleDataField.initialize();
+        Ui.DataField.initialize();
         bikePowerListener = new AntPlus.BikePowerListener();
         bikePower = new AntPlus.BikePower(bikePowerListener);
         label = "adjPwr. " + DURATION.toString() + "s" + (ALTPOWER ? ",a" : "") + (PURE_POWER ? ",p" : "");
         for( var i = 0; i < DURATION; i += 1 ) {
             power_array[i] = 0;
         }
+        MyZonesToDict(Application.getApp().getProperty("myZones_prop"));
         power_array_complete = false;
         power_array_next_index = 0;
         power_sum = 0;
         homealt_factor = altPower(1.0, HOMEALT);
+        
     }
 
     function compute(info) {
@@ -156,7 +203,8 @@ class DataField extends Ui.SimpleDataField {
                 avgPower = altPower(avgPower, info.altitude) / homealt_factor;
             }
         } else {
-            return "-";
+            powerValue = -1;
+            return;
         }
 
         power_sum -= power_array[power_array_next_index];
@@ -173,6 +221,23 @@ class DataField extends Ui.SimpleDataField {
         var watts = power_sum / (power_array_complete ? DURATION : power_array_next_index);
         //Sys.println(info.currentPower);
         //Sys.println(watts);
-        return Math.round(watts).toNumber();
+        //Sys.println(my_zones);
+        powerValue = Math.round(watts).toNumber();
+    }
+    function onLayout(dc) {
+        setLayout(Rez.Layouts.PowerFieldLayout(dc));
+     }
+    
+    function onUpdate(dc) {
+      var color =  ColorMyZone(getPowerZone(powerValue));
+      View.onUpdate(dc);
+      dc.setColor(color, color);
+      dc.clear();
+      var l = Ui.View.findDrawableById("label");
+      l.setText(label);
+      l.draw(dc); 
+      var v = Ui.View.findDrawableById("value");
+      v.setText(powerValue.toString());
+      v.draw(dc);
     }
 }

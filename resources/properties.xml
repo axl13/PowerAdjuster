@@ -1,11 +1,12 @@
 <resources>
     <properties>
-        <property id="duration" type="number">3</property>
+        <property id="duration" type="number">5</property>
         <property id="multiplier" type="float">1.0</property>
         <property id="slope" type="string">100:100,300:300,400:400,600:600,800:800</property>
         <property id="purePower_prop" type="boolean">false</property>
         <property id="altPower_prop" type="boolean">false</property>
         <property id="homeElevation_prop" type="number">0</property>
+        <property id="myZones_prop" type="string">187,255,306,357,408,510</property>
     </properties>
 
     <strings>
@@ -15,6 +16,7 @@
        <string id="altPower_title">Adjust for altitude</string>
        <string id="purePower_title">Show Pure Power</string>
        <string id="homeElevation_title">Home altitude</string>
+       <string id="myZones_title">My Zones, comma separated thresholds</string>
     </strings>
 
     <settings>
@@ -27,6 +29,9 @@
         <setting propertyKey="@Properties.slope" title="slope_title">
             <settingConfig type="alphaNumeric" />
         </setting>
+        <setting propertyKey="@Properties.myZones_prop" title="myZones_title">
+            <settingConfig type="alphaNumeric" />
+        </setting>   
         <setting propertyKey="@Properties.altPower_prop" title="altPower_title">
             <settingConfig type="boolean" />
         </setting>

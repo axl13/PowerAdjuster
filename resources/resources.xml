@@ -3,6 +3,9 @@
 		<bitmap id="id_pc" filename="images/pc.png" />
 	</bitmaps>
 		<layout id="PowerFieldLayout">
+		  <label id="mark" x="center" y="top"
+				font="Graphics.FONT_SYSTEM_TINY"
+				justification="Graphics.TEXT_JUSTIFY_CENTER"/>
 		  <label id="label" x="center" y="bottom"
 				font="Graphics.FONT_SYSTEM_XTINY"
 				justification="Graphics.TEXT_JUSTIFY_CENTER"/>

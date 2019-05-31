@@ -10,10 +10,9 @@ const a1 = 1.0899959d;
 const a2 = -0.0015119d;
 const a3 = 0.00000072674d;
 const rainbow = [
-     Gfx.COLOR_LT_GRAY,
-     Gfx.COLOR_DK_BLUE,
-     Gfx.COLOR_BLUE,
+     Gfx.COLOR_TRANSPARENT,
      Gfx.COLOR_GREEN,
+     Gfx.COLOR_DK_GREEN,
      Gfx.COLOR_YELLOW,
      Gfx.COLOR_ORANGE,
      Gfx.COLOR_RED,
@@ -161,6 +160,13 @@ class PowerDataField extends Ui.DataField {
       // Let's be flexible with number of zones.
       return rainbow[zone * rainbow_ratio];
     }
+    
+    function whereInTheZone(zone, power) {
+      var max_power = 900;  // just the upper level
+      if (power < 0 ) { return 0; }
+      if (zone < my_zones.size()){ max_power = my_zones[zone]; }
+      return (power - my_zones[zone-1]).toFloat()/(max_power - my_zones[zone-1]);
+    }
      
     // Constructor
     function initialize() {
@@ -229,11 +235,17 @@ class PowerDataField extends Ui.DataField {
      }
     
     function onUpdate(dc) {
-      var color =  ColorMyZone(getPowerZone(powerValue));
+      var zone = getPowerZone(powerValue);
+      var color =  ColorMyZone(zone);
       View.onUpdate(dc);
       dc.setColor(color, color);
       dc.clear();
-        var l = Ui.View.findDrawableById("label");
+        
+      var m = Ui.View.findDrawableById("mark");
+      m.setText("^");
+      m.setLocation(dc.getWidth() * whereInTheZone(zone, powerValue), 0);
+      m.draw(dc); 
+      var l = Ui.View.findDrawableById("label");
       l.setText(label);
       l.draw(dc); 
       var v = Ui.View.findDrawableById("value");

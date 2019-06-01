@@ -11,7 +11,7 @@ const a2 = -0.0015119d;
 const a3 = 0.00000072674d;
 const rainbow = [
      Gfx.COLOR_TRANSPARENT,
-     Gfx.COLOR_GREEN,
+     Gfx.COLOR_DK_BLUE,
      Gfx.COLOR_DK_GREEN,
      Gfx.COLOR_YELLOW,
      Gfx.COLOR_ORANGE,
@@ -175,7 +175,7 @@ class PowerDataField extends Ui.DataField {
         Ui.DataField.initialize();
         bikePowerListener = new AntPlus.BikePowerListener();
         bikePower = new AntPlus.BikePower(bikePowerListener);
-        label = "adjPwr. " + DURATION.toString() + "s" + (ALTPOWER ? ",a" : "") + (PURE_POWER ? ",p" : "");
+        label = "Pwr [W] " + DURATION.toString() + "s avg" + (ALTPOWER ? "(a)" : "") + (PURE_POWER ? "(p)" : "");
         for( var i = 0; i < DURATION; i += 1 ) {
             power_array[i] = 0;
         }
@@ -238,13 +238,9 @@ class PowerDataField extends Ui.DataField {
       var zone = getPowerZone(powerValue);
       var color =  ColorMyZone(zone);
       View.onUpdate(dc);
-      dc.setColor(color, color);
+      dc.setColor(Gfx.COLOR_LT_GRAY, color);
       dc.clear();
-        
-      var m = Ui.View.findDrawableById("mark");
-      m.setText("^");
-      m.setLocation(dc.getWidth() * whereInTheZone(zone, powerValue), 0);
-      m.draw(dc); 
+      dc.fillRectangle(dc.getWidth() * whereInTheZone(zone, powerValue), 0, 5, dc.getHeight()); 
       var l = Ui.View.findDrawableById("label");
       l.setText(label);
       l.draw(dc); 

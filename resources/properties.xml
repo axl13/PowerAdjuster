@@ -1,12 +1,12 @@
 <resources>
     <properties>
         <property id="duration" type="number">5</property>
+        <property id="myZones_prop" type="string">187,255,306,357,408,510</property>
+        <property id="altPower_prop" type="boolean">false</property>
+        <property id="homeElevation_prop" type="number">0</property>
         <property id="multiplier" type="float">1.0</property>
         <property id="slope" type="string">100:100,300:300,400:400,600:600,800:800</property>
         <property id="purePower_prop" type="boolean">false</property>
-        <property id="altPower_prop" type="boolean">false</property>
-        <property id="homeElevation_prop" type="number">0</property>
-        <property id="myZones_prop" type="string">187,255,306,357,408,510</property>
     </properties>
 
     <strings>
@@ -23,23 +23,23 @@
         <setting propertyKey="@Properties.duration" title="duration_title">
             <settingConfig type="numeric" min="1" max="1800"/>
         </setting>
-		<setting propertyKey="@Properties.multiplier" title="multiplier_title">
-            <settingConfig type="numeric" />
-        </setting>
-        <setting propertyKey="@Properties.slope" title="slope_title">
-            <settingConfig type="alphaNumeric" />
-        </setting>
-        <setting propertyKey="@Properties.myZones_prop" title="myZones_title">
+	 <setting propertyKey="@Properties.myZones_prop" title="myZones_title">
             <settingConfig type="alphaNumeric" />
         </setting>   
         <setting propertyKey="@Properties.altPower_prop" title="altPower_title">
             <settingConfig type="boolean" />
         </setting>
-        <setting propertyKey="@Properties.purePower_prop" title="purePower_title">
-            <settingConfig type="boolean" />
-        </setting>
-        <setting propertyKey="@Properties.homeElevation_prop" title="homeElevation_title">
+         <setting propertyKey="@Properties.homeElevation_prop" title="homeElevation_title">
             <settingConfig type="numeric" min="0" max="9000" />
         </setting>
-    </settings>
+      	<setting propertyKey="@Properties.multiplier" title="multiplier_title">
+            <settingConfig type="numeric" />
+        </setting>
+        <setting propertyKey="@Properties.slope" title="slope_title">
+            <settingConfig type="alphaNumeric" />
+        </setting>
+         <setting propertyKey="@Properties.purePower_prop" title="purePower_title">
+            <settingConfig type="boolean" />
+        </setting>
+   </settings>
 </resources>

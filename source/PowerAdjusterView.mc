@@ -175,7 +175,7 @@ class PowerDataField extends Ui.DataField {
         Ui.DataField.initialize();
         bikePowerListener = new AntPlus.BikePowerListener();
         bikePower = new AntPlus.BikePower(bikePowerListener);
-        label = "Pwr [W] " + DURATION.toString() + "s avg" + (ALTPOWER ? "(a)" : "") + (PURE_POWER ? "(p)" : "");
+        label = "Pwr." + DURATION.toString() + "s " + (ALTPOWER ? "(a)" : "") + (PURE_POWER ? "(p)" : "");
         for( var i = 0; i < DURATION; i += 1 ) {
             power_array[i] = 0;
         }
@@ -233,19 +233,42 @@ class PowerDataField extends Ui.DataField {
     function onLayout(dc) {
         setLayout(Rez.Layouts.PowerFieldLayout(dc));
      }
-    
+    function drawZones(dc, zone, power) {
+     var color = Gfx.COLOR_TRANSPARENT;
+     var m = whereInTheZone(zone, powerValue);
+     var w = dc.getWidth();
+     var h = dc.getHeight();
+     var b1 = w/2 * (1 - m);
+     var b2 = b1 + w/2;
+     
+     if (zone > 1){
+       dc.setColor(ColorMyZone(zone-1), color);
+       dc.fillRectangle(0, 0, b1, h);
+     }
+     dc.setColor(ColorMyZone(zone), color);
+     dc.fillRectangle(b1, 0, b2, h);
+     if (zone < my_zones.size()) {
+       dc.setColor(ColorMyZone(zone+1), color);
+       dc.fillRectangle(b2, 0, w, h);
+     }
+    }
+     
     function onUpdate(dc) {
       var zone = getPowerZone(powerValue);
-      var color =  ColorMyZone(zone);
+      //var color =  ColorMyZone(zone);
       View.onUpdate(dc);
-      dc.setColor(Gfx.COLOR_LT_GRAY, color);
-      dc.clear();
-      dc.fillRectangle(dc.getWidth() * whereInTheZone(zone, powerValue), 0, 5, dc.getHeight()); 
+      //dc.setColor(Gfx.COLOR_LT_GRAY, color);
+      //dc.clear();
+      //dc.fillRectangle(dc.getWidth() * whereInTheZone(zone, powerValue), 0, 5, dc.getHeight()); 
+      drawZones(dc, zone, powerValue);
       var l = Ui.View.findDrawableById("label");
-      l.setText(label);
+      l.setText(label + " z:" + zone);
       l.draw(dc); 
       var v = Ui.View.findDrawableById("value");
       v.setText(powerValue.toString());
       v.draw(dc);
+      var m = Ui.View.findDrawableById("mark");
+      m.setText("^");
+      m.draw(dc);
     }
 }

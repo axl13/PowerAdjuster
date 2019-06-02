@@ -8,8 +8,6 @@
             <iq:product id="edge530"/>
             <iq:product id="edge820"/>
             <iq:product id="edge830"/>
-            <iq:product id="edge_1000"/>
-            <iq:product id="edge_520"/>
             <iq:product id="edgeexplore"/>
             <iq:product id="fenix5"/>
             <iq:product id="fenix5plus"/>
@@ -22,25 +20,15 @@
             <iq:product id="fr245m"/>
             <iq:product id="fr645"/>
             <iq:product id="fr645m"/>
-            <iq:product id="fr735xt"/>
             <iq:product id="fr935"/>
             <iq:product id="fr945"/>
         </iq:products>
         <iq:permissions>
             <iq:uses-permission id="Ant"/>
-            <iq:uses-permission id="Background"/>
             <iq:uses-permission id="SensorHistory"/>
-            <iq:uses-permission id="UserProfile"/>
         </iq:permissions>
         <iq:languages>
-            <iq:language>ara</iq:language>
-            <iq:language>ces</iq:language>
-            <iq:language>dan</iq:language>
-            <iq:language>deu</iq:language>
-            <iq:language>dut</iq:language>
             <iq:language>eng</iq:language>
-            <iq:language>fin</iq:language>
-            <iq:language>fre</iq:language>
         </iq:languages>
     </iq:application>
 </iq:manifest>

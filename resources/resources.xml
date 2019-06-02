@@ -6,8 +6,11 @@
 		  <label id="label" x="center" y="bottom"
 				font="Graphics.FONT_SYSTEM_XTINY"
 				justification="Graphics.TEXT_JUSTIFY_CENTER"/>
-			<label id="value" x="center" y="center"
+		  <label id="value" x="center" y="center"
 				font="Graphics.FONT_SYSTEM_NUMBER_THAI_HOT"
 				justification="Graphics.TEXT_JUSTIFY_CENTER"/>
-		</layout>
+		  <label id="mark" x="center" y="top"
+				font="Graphics.FONT_SYSTEM_XTINY"
+				justification="Graphics.TEXT_JUSTIFY_CENTER"/>
+		  </layout>
 </resources>

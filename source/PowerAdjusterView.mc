@@ -16,8 +16,8 @@ const rainbow = [
      Gfx.COLOR_YELLOW,
      Gfx.COLOR_ORANGE,
      Gfx.COLOR_RED,
-     Gfx.COLOR_DK_RED,
-     Gfx.COLOR_PURPLE ];
+     Gfx.COLOR_PURPLE,
+     Gfx.COLOR_BLACK ];
 
 function linear_interpolation(x0, y0, x1, y1, x) {
     var a = (y1 - y0).toFloat() / (x1 - x0);
@@ -162,7 +162,7 @@ class PowerDataField extends Ui.DataField {
     }
     
     function whereInTheZone(zone, power) {
-      var max_power = 900;  // just the upper level
+      var max_power = my_zones[my_zones.size()-1] + 200;  // just the upper level
       if (power < 0 ) { return 0; }
       if (zone < my_zones.size()){ max_power = my_zones[zone]; }
       return (power - my_zones[zone-1]).toFloat()/(max_power - my_zones[zone-1]);
@@ -238,8 +238,8 @@ class PowerDataField extends Ui.DataField {
      var m = whereInTheZone(zone, powerValue);
      var w = dc.getWidth();
      var h = dc.getHeight();
-     var b1 = w/2 * (1 - m);
-     var b2 = b1 + w/2;
+     var b1 = 0.8 * w * (1 - m);
+     var b2 = b1 + 0.8 * w;
      
      if (zone > 1){
        dc.setColor(ColorMyZone(zone-1), color);
@@ -254,21 +254,29 @@ class PowerDataField extends Ui.DataField {
     }
      
     function onUpdate(dc) {
-      var zone = getPowerZone(powerValue);
-      //var color =  ColorMyZone(zone);
-      View.onUpdate(dc);
-      //dc.setColor(Gfx.COLOR_LT_GRAY, color);
-      //dc.clear();
-      //dc.fillRectangle(dc.getWidth() * whereInTheZone(zone, powerValue), 0, 5, dc.getHeight()); 
-      drawZones(dc, zone, powerValue);
-      var l = Ui.View.findDrawableById("label");
-      l.setText(label + " z:" + zone);
-      l.draw(dc); 
+	  View.onUpdate(dc);
+	  dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_WHITE);
+	  dc.clear();
+	  var zone_label = "";
       var v = Ui.View.findDrawableById("value");
-      v.setText(powerValue.toString());
-      v.draw(dc);
-      var m = Ui.View.findDrawableById("mark");
-      m.setText("^");
-      m.draw(dc);
+	  var l = Ui.View.findDrawableById("label");
+      if (my_zones.size() > 2) {
+          l.setColor(Gfx.COLOR_WHITE);
+          v.setColor(Gfx.COLOR_WHITE);	    
+		  var zone = getPowerZone(powerValue);
+		  zone_label = " z" + zone;
+		  drawZones(dc, zone, powerValue);
+		  var m = Ui.View.findDrawableById("mark");
+		  m.setText("^");
+		  m.draw(dc);
+	  }
+	  else {
+        l.setColor(Gfx.COLOR_BLACK);
+        v.setColor(Gfx.COLOR_BLACK);	    
+	  }
+	  l.setText(label + zone_label);
+	  l.draw(dc);
+	  v.setText(powerValue.toString());
+	  v.draw(dc);
     }
 }

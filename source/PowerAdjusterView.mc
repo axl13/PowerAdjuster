@@ -10,7 +10,7 @@ const a1 = 1.0899959d;
 const a2 = -0.0015119d;
 const a3 = 0.00000072674d;
 const rainbow = [
-     Gfx.COLOR_TRANSPARENT,
+     Gfx.COLOR_LT_GRAY,
      Gfx.COLOR_DK_BLUE,
      Gfx.COLOR_DK_GREEN,
      Gfx.COLOR_YELLOW,
@@ -144,13 +144,14 @@ class PowerDataField extends Ui.DataField {
          myzones_string = myzones_string.substring(p+1, myzones_string.length());
          p = myzones_string.find(",");
        }
-       rainbow_ratio = (rainbow.size()-1)/my_zones.size();
+       rainbow_ratio = (rainbow.size())/my_zones.size();
     }
     
     function getPowerZone(power) {
       var i;
       for(i = 0; i < my_zones.size(); i++) {
         if(power < my_zones[i]) { break; }
+        
       }
       return i;
     }
@@ -162,7 +163,7 @@ class PowerDataField extends Ui.DataField {
     }
     
     function whereInTheZone(zone, power) {
-      var max_power = my_zones[my_zones.size()-1] + 200;  // just the upper level
+      var max_power = my_zones[my_zones.size()-1] + 300;  // just the upper level
       if (power < 0 ) { return 0; }
       if (zone < my_zones.size()){ max_power = my_zones[zone]; }
       return (power - my_zones[zone-1]).toFloat()/(max_power - my_zones[zone-1]);
@@ -234,14 +235,16 @@ class PowerDataField extends Ui.DataField {
         setLayout(Rez.Layouts.PowerFieldLayout(dc));
      }
     function drawZones(dc, zone, power) {
-     var color = Gfx.COLOR_TRANSPARENT;
+     var color = Gfx.COLOR_LT_GRAY;
      var m = whereInTheZone(zone, powerValue);
      var w = dc.getWidth();
      var h = dc.getHeight();
-     var b1 = 0.8 * w * (1 - m);
-     var b2 = b1 + 0.8 * w;
+     var zw = 0.8 * w; // 80% of the datafield
+     var b1 = zw / 2 * (1 - m);
+     var b2 = b1 + zw;
+     //Sys.println("z:" +zone + " p:" + power + " %" + m + " b1:" + b1 + " b2:" + b2 + " w:" + w);
      
-     if (zone > 1){
+     if (zone > 0){
        dc.setColor(ColorMyZone(zone-1), color);
        dc.fillRectangle(0, 0, b1, h);
      }
@@ -255,12 +258,11 @@ class PowerDataField extends Ui.DataField {
      
     function onUpdate(dc) {
 	  View.onUpdate(dc);
-	  dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_WHITE);
-	  dc.clear();
 	  var zone_label = "";
       var v = Ui.View.findDrawableById("value");
 	  var l = Ui.View.findDrawableById("label");
       if (my_zones.size() > 2) {
+     	  dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
           l.setColor(Gfx.COLOR_WHITE);
           v.setColor(Gfx.COLOR_WHITE);	    
 		  var zone = getPowerZone(powerValue);
@@ -271,9 +273,11 @@ class PowerDataField extends Ui.DataField {
 		  m.draw(dc);
 	  }
 	  else {
-        l.setColor(Gfx.COLOR_BLACK);
-        v.setColor(Gfx.COLOR_BLACK);	    
+     	 l.setColor(Gfx.COLOR_BLACK);
+         v.setColor(Gfx.COLOR_BLACK);
+         dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_WHITE);
 	  }
+	  dc.clear();
 	  l.setText(label + zone_label);
 	  l.draw(dc);
 	  v.setText(powerValue.toString());

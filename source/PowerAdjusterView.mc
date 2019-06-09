@@ -98,8 +98,8 @@ class Slope {
         self.x_values.add(10000);
         self.y_values.add(10000);
     }
-    
- 
+
+
     function interpolate(x) {
         var i = 0;
         while ((x > self.x_values[i]) && (i < self.x_values.size())) {
@@ -131,9 +131,10 @@ class PowerDataField extends Ui.DataField {
     var label;
     var my_zones = [0];
     var rainbow_ratio;
-    
-    hidden var powerValue;
-    
+    var font_o, font2_o;
+
+    var powerValue;
+
     function MyZonesToDict(myzones_string)  {
        var p;
        myzones_string += ",";
@@ -146,34 +147,36 @@ class PowerDataField extends Ui.DataField {
        }
        rainbow_ratio = (rainbow.size())/my_zones.size();
     }
-    
+
     function getPowerZone(power) {
       var i;
       for(i = 0; i < my_zones.size(); i++) {
         if(power < my_zones[i]) { break; }
-        
+
       }
       return i;
     }
-        
+
 
     function ColorMyZone(zone) {
       // Let's be flexible with number of zones.
       return rainbow[zone * rainbow_ratio];
     }
-    
+
     function whereInTheZone(zone, power) {
       var max_power = my_zones[my_zones.size()-1] + 300;  // just the upper level
       if (power < 0 ) { return 0; }
       if (zone < my_zones.size()){ max_power = my_zones[zone]; }
       return (power - my_zones[zone-1]).toFloat()/(max_power - my_zones[zone-1]);
     }
-     
+
     // Constructor
     function initialize() {
         //Sys.println(POWER_MULTIPLIER);
         //Sys.println(Application.getApp().getProperty("slope"));
         Ui.DataField.initialize();
+        font_o = Ui.loadResource(Rez.Fonts.outline_fnt);
+        font2_o = Ui.loadResource(Rez.Fonts.outline2_fnt);
         bikePowerListener = new AntPlus.BikePowerListener();
         bikePower = new AntPlus.BikePower(bikePowerListener);
         label = "Pwr." + DURATION.toString() + "s " + (ALTPOWER ? "(a)" : "") + (PURE_POWER ? "(p)" : "");
@@ -185,7 +188,7 @@ class PowerDataField extends Ui.DataField {
         power_array_next_index = 0;
         power_sum = 0;
         homealt_factor = altPower(1.0, HOMEALT);
-        
+
     }
 
     function compute(info) {
@@ -243,7 +246,7 @@ class PowerDataField extends Ui.DataField {
      var b1 = zw / 2 * (1 - m);
      var b2 = b1 + zw;
      //Sys.println("z:" +zone + " p:" + power + " %" + m + " b1:" + b1 + " b2:" + b2 + " w:" + w);
-     
+
      if (zone > 0){
        dc.setColor(ColorMyZone(zone-1), color);
        dc.fillRectangle(0, 0, b1, h);
@@ -255,32 +258,48 @@ class PowerDataField extends Ui.DataField {
        dc.fillRectangle(b2, 0, w, h);
      }
     }
-     
+
     function onUpdate(dc) {
-	  View.onUpdate(dc);
-	  var zone_label = "";
+      View.onUpdate(dc);
+      var zone_label = "";
+      var bg_color = getBackgroundColor();
+      var fg_color = 0xFFFFFF ^ bg_color;
       var v = Ui.View.findDrawableById("value");
-	  var l = Ui.View.findDrawableById("label");
-      if (my_zones.size() > 2) {
-     	  dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
-          l.setColor(Gfx.COLOR_WHITE);
-          v.setColor(Gfx.COLOR_WHITE);	    
-		  var zone = getPowerZone(powerValue);
-		  zone_label = " z" + zone;
-		  drawZones(dc, zone, powerValue);
-		  var m = Ui.View.findDrawableById("mark");
-		  m.setText("^");
-		  m.draw(dc);
-	  }
-	  else {
-     	 l.setColor(Gfx.COLOR_BLACK);
-         v.setColor(Gfx.COLOR_BLACK);
-         dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_WHITE);
-	  }
-	  dc.clear();
-	  l.setText(label + zone_label);
-	  l.draw(dc);
-	  v.setText(powerValue.toString());
-	  v.draw(dc);
-    }
+      var l = Ui.View.findDrawableById("label");
+      l.setColor(fg_color);
+      v.setColor(fg_color);
+      dc.setColor(fg_color, bg_color);
+      dc.clear();
+      if (powerValue > -1){
+          if (my_zones.size() > 2) {
+              dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+              l.setColor(Gfx.COLOR_WHITE);
+              //m.setColor(Gfx.COLOR_WHITE);
+              var zone = getPowerZone(powerValue);
+              zone_label = " z" + zone;
+              drawZones(dc, zone, powerValue);
+              var m = Ui.View.findDrawableById("mark");
+              m.setText("^");
+              m.draw(dc);
+              dc.drawText(dc.getWidth() /2 , dc.getHeight()/2, font_o,
+                          powerValue.toString(),
+                          Gfx.TEXT_JUSTIFY_CENTER | Gfx.TEXT_JUSTIFY_VCENTER);
+
+              dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_TRANSPARENT);
+              dc.drawText(dc.getWidth() /2 , dc.getHeight()/2, font2_o,
+                          powerValue.toString(),
+                          Gfx.TEXT_JUSTIFY_CENTER | Gfx.TEXT_JUSTIFY_VCENTER);
+          }
+          else {
+             v.setText(powerValue.toString());
+             v.draw(dc);
+          }
+      }
+      else {
+         v.setText("-");
+      }
+      v.draw(dc);
+      l.setText(label + zone_label);
+      l.draw(dc);
+   }
 }

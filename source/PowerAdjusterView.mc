@@ -12,13 +12,12 @@ const a3 = 0.00000072674d;
 const rainbow = [
      Gfx.COLOR_LT_GRAY,
      Gfx.COLOR_DK_BLUE,
-     Gfx.COLOR_BLUE,
-     Gfx.COLOR_GREEN,
+     Gfx.COLOR_DK_GREEN,
      Gfx.COLOR_YELLOW,
      Gfx.COLOR_ORANGE,
      Gfx.COLOR_RED,
-     Gfx.COLOR_DK_RED,
-     Gfx.COLOR_PURPLE ];
+     Gfx.COLOR_PURPLE,
+     Gfx.COLOR_BLACK ];
 
 function linear_interpolation(x0, y0, x1, y1, x) {
     var a = (y1 - y0).toFloat() / (x1 - x0);
@@ -99,8 +98,8 @@ class Slope {
         self.x_values.add(10000);
         self.y_values.add(10000);
     }
-    
- 
+
+
     function interpolate(x) {
         var i = 0;
         while ((x > self.x_values[i]) && (i < self.x_values.size())) {
@@ -132,9 +131,10 @@ class PowerDataField extends Ui.DataField {
     var label;
     var my_zones = [0];
     var rainbow_ratio;
-    
-    hidden var powerValue;
-    
+    var font_o, font2_o;
+
+    var powerValue;
+
     function MyZonesToDict(myzones_string)  {
        var p;
        myzones_string += ",";
@@ -145,31 +145,41 @@ class PowerDataField extends Ui.DataField {
          myzones_string = myzones_string.substring(p+1, myzones_string.length());
          p = myzones_string.find(",");
        }
-       rainbow_ratio = (rainbow.size()-1)/my_zones.size();
+       rainbow_ratio = (rainbow.size())/my_zones.size();
     }
-    
+
     function getPowerZone(power) {
       var i;
       for(i = 0; i < my_zones.size(); i++) {
         if(power < my_zones[i]) { break; }
+
       }
       return i;
     }
-        
+
 
     function ColorMyZone(zone) {
       // Let's be flexible with number of zones.
       return rainbow[zone * rainbow_ratio];
     }
-     
+
+    function whereInTheZone(zone, power) {
+      var max_power = my_zones[my_zones.size()-1] + 300;  // just the upper level
+      if (power < 0 ) { return 0; }
+      if (zone < my_zones.size()){ max_power = my_zones[zone]; }
+      return (power - my_zones[zone-1]).toFloat()/(max_power - my_zones[zone-1]);
+    }
+
     // Constructor
     function initialize() {
         //Sys.println(POWER_MULTIPLIER);
         //Sys.println(Application.getApp().getProperty("slope"));
         Ui.DataField.initialize();
+        font_o = Ui.loadResource(Rez.Fonts.outline_fnt);
+        font2_o = Ui.loadResource(Rez.Fonts.outline2_fnt);
         bikePowerListener = new AntPlus.BikePowerListener();
         bikePower = new AntPlus.BikePower(bikePowerListener);
-        label = "adjPwr. " + DURATION.toString() + "s" + (ALTPOWER ? ",a" : "") + (PURE_POWER ? ",p" : "");
+        label = "Pwr." + DURATION.toString() + "s " + (ALTPOWER ? "(a)" : "") + (PURE_POWER ? "(p)" : "");
         for( var i = 0; i < DURATION; i += 1 ) {
             power_array[i] = 0;
         }
@@ -178,7 +188,7 @@ class PowerDataField extends Ui.DataField {
         power_array_next_index = 0;
         power_sum = 0;
         homealt_factor = altPower(1.0, HOMEALT);
-        
+
     }
 
     function compute(info) {
@@ -227,17 +237,69 @@ class PowerDataField extends Ui.DataField {
     function onLayout(dc) {
         setLayout(Rez.Layouts.PowerFieldLayout(dc));
      }
-    
-    function onUpdate(dc) {
-      var color =  ColorMyZone(getPowerZone(powerValue));
-      View.onUpdate(dc);
-      dc.setColor(color, color);
-      dc.clear();
-      var l = Ui.View.findDrawableById("label");
-      l.setText(label);
-      l.draw(dc); 
-      var v = Ui.View.findDrawableById("value");
-      v.setText(powerValue.toString());
-      v.draw(dc);
+    function drawZones(dc, zone, power) {
+     var color = Gfx.COLOR_LT_GRAY;
+     var m = whereInTheZone(zone, powerValue);
+     var w = dc.getWidth();
+     var h = dc.getHeight();
+     var zw = 0.8 * w; // 80% of the datafield
+     var b1 = zw / 2 * (1 - m);
+     var b2 = b1 + zw;
+     //Sys.println("z:" +zone + " p:" + power + " %" + m + " b1:" + b1 + " b2:" + b2 + " w:" + w);
+
+     if (zone > 0){
+       dc.setColor(ColorMyZone(zone-1), color);
+       dc.fillRectangle(0, 0, b1, h);
+     }
+     dc.setColor(ColorMyZone(zone), color);
+     dc.fillRectangle(b1, 0, b2, h);
+     if (zone < my_zones.size()) {
+       dc.setColor(ColorMyZone(zone+1), color);
+       dc.fillRectangle(b2, 0, w, h);
+     }
     }
+
+    function onUpdate(dc) {
+      View.onUpdate(dc);
+      var zone_label = "";
+      var bg_color = getBackgroundColor();
+      var fg_color = 0xFFFFFF ^ bg_color;
+      var v = Ui.View.findDrawableById("value");
+      var l = Ui.View.findDrawableById("label");
+      l.setColor(fg_color);
+      v.setColor(fg_color);
+      dc.setColor(fg_color, bg_color);
+      dc.clear();
+      if (powerValue > -1){
+          if (my_zones.size() > 2) {
+              dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+              l.setColor(Gfx.COLOR_WHITE);
+              //m.setColor(Gfx.COLOR_WHITE);
+              var zone = getPowerZone(powerValue);
+              zone_label = " z" + zone;
+              drawZones(dc, zone, powerValue);
+              var m = Ui.View.findDrawableById("mark");
+              m.setText("^");
+              m.draw(dc);
+              dc.drawText(dc.getWidth() /2 , dc.getHeight()/2, font_o,
+                          powerValue.toString(),
+                          Gfx.TEXT_JUSTIFY_CENTER | Gfx.TEXT_JUSTIFY_VCENTER);
+
+              dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_TRANSPARENT);
+              dc.drawText(dc.getWidth() /2 , dc.getHeight()/2, font2_o,
+                          powerValue.toString(),
+                          Gfx.TEXT_JUSTIFY_CENTER | Gfx.TEXT_JUSTIFY_VCENTER);
+          }
+          else {
+             v.setText(powerValue.toString());
+             v.draw(dc);
+          }
+      }
+      else {
+         v.setText("-");
+      }
+      v.draw(dc);
+      l.setText(label + zone_label);
+      l.draw(dc);
+   }
 }

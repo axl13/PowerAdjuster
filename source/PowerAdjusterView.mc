@@ -129,45 +129,73 @@ class PowerDataField extends Ui.DataField {
     var bikePower;
     var bikePowerListener;
     var label;
-    var my_zones = [0];
-    var rainbow_ratio;
+    // Power numbers for the end of the zone. 0 is implicitly the beginning of the first zone.
+    var my_zones = [];
+    var my_rainbow = [];
     var font_o, font2_o;
 
     var powerValue;
 
     function MyZonesToDict(myzones_string)  {
-       var p;
-       myzones_string += ",";
-       //Sys.println(myzones_string);
-       p = myzones_string.find(",");
-       while (p != null) {
-         self.my_zones.add(myzones_string.substring(0, p).toNumber());
-         myzones_string = myzones_string.substring(p+1, myzones_string.length());
-         p = myzones_string.find(",");
-       }
-       rainbow_ratio = (rainbow.size())/my_zones.size();
+      var p;
+      myzones_string += ",";
+      Sys.println(myzones_string);
+      p = myzones_string.find(",");
+      while (p != null) {
+        self.my_zones.add(myzones_string.substring(0, p).toNumber());
+        myzones_string = myzones_string.substring(p+1, myzones_string.length());
+        p = myzones_string.find(",");
+      }
+      var rainbow_ratio = rainbow.size().toFloat() / my_zones.size();
+      for (var i = 0; i < my_zones.size(); ++i) {
+        var index = Math.floor(i * rainbow_ratio).toNumber();
+        var color = rainbow[index];
+        my_rainbow.add(color);
+        // Sys.println("my_rainbow at " + i + " is " + index + " index, " + color);
+      }
     }
 
     function getPowerZone(power) {
-      var i;
-      for(i = 0; i < my_zones.size(); i++) {
-        if(power < my_zones[i]) { break; }
-
+      for (var i = 0; i < my_zones.size(); i++) {
+        if(power < my_zones[i]) { return i; }
       }
-      return i;
+      // Means we're at the last zone.
+      return my_zones.size();
     }
-
 
     function ColorMyZone(zone) {
       // Let's be flexible with number of zones.
-      return rainbow[zone * rainbow_ratio];
+      if (zone >= my_rainbow.size()) {
+        //Sys.println("Clipping zone from " + zone + " to " + (my_rainbow.size() - 1));
+        zone = my_rainbow.size() - 1;
+      }
+      if (zone < 0) {
+        //Sys.println("Clipping zone from " + zone + " to 0");
+        zone = 0;
+      }
+      return my_rainbow[zone];
     }
 
     function whereInTheZone(zone, power) {
-      var max_power = my_zones[my_zones.size()-1] + 300;  // just the upper level
-      if (power < 0 ) { return 0; }
-      if (zone < my_zones.size()){ max_power = my_zones[zone]; }
-      return (power - my_zones[zone-1]).toFloat()/(max_power - my_zones[zone-1]);
+      if (power < 0) { return 0.0; }
+      var min_power = 0;
+      if (zone >= my_zones.size()) {
+        // Zone after the last one has the same color.
+        return 0.0; 
+      }
+      if (zone > 0) {
+        min_power = my_zones[zone-1];
+      }
+      var max_power = my_zones[zone];
+      if (power > max_power) {
+        // This shouldn't happen.
+        return 1.0;
+      }
+      if (max_power - min_power == 0) {
+        // Error in settings?
+        return 0.0;
+      }
+      return (power - min_power).toFloat() / (max_power - min_power);
     }
 
     // Constructor
@@ -234,29 +262,31 @@ class PowerDataField extends Ui.DataField {
         //Sys.println(my_zones);
         powerValue = Math.round(watts).toNumber();
     }
-    function onLayout(dc) {
-        setLayout(Rez.Layouts.PowerFieldLayout(dc));
-     }
-    function drawZones(dc, zone, power) {
-     var color = Gfx.COLOR_LT_GRAY;
-     var m = whereInTheZone(zone, powerValue);
-     var w = dc.getWidth();
-     var h = dc.getHeight();
-     var zw = 0.8 * w; // 80% of the datafield
-     var b1 = zw / 2 * (1 - m);
-     var b2 = b1 + zw;
-     //Sys.println("z:" +zone + " p:" + power + " %" + m + " b1:" + b1 + " b2:" + b2 + " w:" + w);
 
-     if (zone > 0){
-       dc.setColor(ColorMyZone(zone-1), color);
-       dc.fillRectangle(0, 0, b1, h);
-     }
-     dc.setColor(ColorMyZone(zone), color);
-     dc.fillRectangle(b1, 0, b2, h);
-     if (zone < my_zones.size()) {
-       dc.setColor(ColorMyZone(zone+1), color);
-       dc.fillRectangle(b2, 0, w, h);
-     }
+    function onLayout(dc) {
+      setLayout(Rez.Layouts.PowerFieldLayout(dc));
+    }
+
+    function drawZones(dc, zone, power) {
+      var color = Gfx.COLOR_LT_GRAY;
+      var m = whereInTheZone(zone, power);
+      var w = dc.getWidth();
+      var h = dc.getHeight();
+      var zw = 0.8 * w; // 80% of the datafield
+      var b1 = zw / 2 * (1 - m);
+      var b2 = b1 + zw;
+      // Sys.println("z:" + zone + " p:" + power + " %" + m + " b1:" + b1 + " b2:" + b2 + " w:" + w);
+
+      if (b1 > 0) {
+        dc.setColor(ColorMyZone(zone - 1), color);
+        dc.fillRectangle(0, 0, b1, h);
+      }
+      dc.setColor(ColorMyZone(zone), color);
+      dc.fillRectangle(b1, 0, b2, h);
+      if (b2 < w) {
+        dc.setColor(ColorMyZone(zone + 1), color);
+        dc.fillRectangle(b2, 0, w, h);
+      }
     }
 
     function onUpdate(dc) {
@@ -270,8 +300,8 @@ class PowerDataField extends Ui.DataField {
       v.setColor(fg_color);
       dc.setColor(fg_color, bg_color);
       dc.clear();
-      if (powerValue > -1){
-          if (my_zones.size() > 2) {
+      if (powerValue > -1) {
+          if (my_zones.size() > 0) {
               dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
               l.setColor(Gfx.COLOR_WHITE);
               //m.setColor(Gfx.COLOR_WHITE);
@@ -280,6 +310,7 @@ class PowerDataField extends Ui.DataField {
               drawZones(dc, zone, powerValue);
               var m = Ui.View.findDrawableById("mark");
               m.setText("^");
+              v.setText("");
               m.draw(dc);
               dc.drawText(dc.getWidth() /2 , dc.getHeight()/2, font_o,
                           powerValue.toString(),
@@ -289,14 +320,13 @@ class PowerDataField extends Ui.DataField {
               dc.drawText(dc.getWidth() /2 , dc.getHeight()/2, font2_o,
                           powerValue.toString(),
                           Gfx.TEXT_JUSTIFY_CENTER | Gfx.TEXT_JUSTIFY_VCENTER);
-          }
-          else {
+          } else {
              v.setText(powerValue.toString());
              v.draw(dc);
           }
-      }
-      else {
-         v.setText("-");
+      } else {
+        Sys.println("Setting -");
+        v.setText("-");
       }
       v.draw(dc);
       l.setText(label + zone_label);

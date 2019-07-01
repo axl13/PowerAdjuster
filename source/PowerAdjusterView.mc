@@ -142,9 +142,15 @@ class PowerDataField extends Ui.DataField {
       Sys.println(myzones_string);
       p = myzones_string.find(",");
       while (p != null) {
-        self.my_zones.add(myzones_string.substring(0, p).toNumber());
+        var zone_power = myzones_string.substring(0, p).toNumber();
+        if (zone_power != null) {
+          self.my_zones.add(zone_power);
+        }
         myzones_string = myzones_string.substring(p+1, myzones_string.length());
         p = myzones_string.find(",");
+      }
+      if (my_zones.size() == 0) {
+        return;
       }
       var rainbow_ratio = rainbow.size().toFloat() / my_zones.size();
       for (var i = 0; i < my_zones.size(); ++i) {

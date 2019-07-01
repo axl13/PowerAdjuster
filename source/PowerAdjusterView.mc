@@ -16,8 +16,9 @@ const rainbow = [
      Gfx.COLOR_YELLOW,
      Gfx.COLOR_ORANGE,
      Gfx.COLOR_RED,
-     Gfx.COLOR_PURPLE,
-     Gfx.COLOR_BLACK ];
+     Gfx.COLOR_PURPLE ];
+// Color of the zone above the last value in myZones_prop.
+const nightmare_color = Gfx.COLOR_BLACK;
 
 function linear_interpolation(x0, y0, x1, y1, x) {
     var a = (y1 - y0).toFloat() / (x1 - x0);
@@ -57,30 +58,30 @@ class Slope {
     }
 
     function getX(i) {
-        return x_values[i];
+      return x_values[i];
     }
 
     function getY(i) {
-        return y_values[i];
+      return y_values[i];
     }
 
     function size() {
-        return x_values.size();
+      return x_values.size();
     }
 
     function sort() {
-        for (var i=0; i<(self.size()-1); i++){
-            for(var j=i;j<(self.size()-1); j++){
-                var x_tmp = self.x_values[j];
-                var y_tmp = self.y_values[j];
-                if( self.getX(j+1) < self.getX(j)) {
-                    self.x_values[j] = self.getX(j+1);
-                    self.y_values[j] = self.getY(j+1);
-                    self.x_values[j+1] = x_tmp;
-                    self.y_values[j+1] = y_tmp;
-                }
-            }
+      for (var i=0; i<(self.size()-1); i++){
+        for(var j=i;j<(self.size()-1); j++){
+          var x_tmp = self.x_values[j];
+          var y_tmp = self.y_values[j];
+          if( self.getX(j+1) < self.getX(j)) {
+            self.x_values[j] = self.getX(j+1);
+            self.y_values[j] = self.getY(j+1);
+            self.x_values[j+1] = x_tmp;
+            self.y_values[j+1] = y_tmp;
+          }
         }
+      }
     }
 
     // to parse something like 192:202,286:306,333:351,388:407,616:644,1068:1079
@@ -170,38 +171,45 @@ class PowerDataField extends Ui.DataField {
     }
 
     function ColorMyZone(zone) {
-      // Let's be flexible with number of zones.
       if (zone >= my_rainbow.size()) {
-        //Sys.println("Clipping zone from " + zone + " to " + (my_rainbow.size() - 1));
-        zone = my_rainbow.size() - 1;
+        return nightmare_color;
       }
       if (zone < 0) {
-        //Sys.println("Clipping zone from " + zone + " to 0");
         zone = 0;
       }
       return my_rainbow[zone];
     }
 
     function whereInTheZone(zone, power) {
-      if (power < 0) { return 0.0; }
+      if (power < 0 || my_zones.size() == 0) { return 0.0; }
       var min_power = 0;
+      var max_power;
       if (zone >= my_zones.size()) {
-        // Zone after the last one has the same color.
-        return 0.0; 
+        // Effectively the scale on this next-to-last zone will be the same as the last one.
+        max_power = my_zones[my_zones.size() - 1] * 2;
+        if (my_zones.size() > 1) {
+          max_power = max_power - my_zones[my_zones.size() - 2];
+        }
+        // The max conputation above can be done only once.
+      } else {
+        max_power = my_zones[zone];
       }
       if (zone > 0) {
         min_power = my_zones[zone-1];
       }
-      var max_power = my_zones[zone];
       if (power > max_power) {
-        // This shouldn't happen.
         return 1.0;
       }
       if (max_power - min_power == 0) {
         // Error in settings?
         return 0.0;
       }
-      return (power - min_power).toFloat() / (max_power - min_power);
+      var ratio = (power - min_power).toFloat() / (max_power - min_power);
+      if (ratio > 1.0) {
+        return 1.0;
+      } else {
+        return ratio;
+      }
     }
 
     // Constructor
@@ -278,10 +286,14 @@ class PowerDataField extends Ui.DataField {
       var m = whereInTheZone(zone, power);
       var w = dc.getWidth();
       var h = dc.getHeight();
-      var zw = 0.8 * w; // 80% of the datafield
-      var b1 = zw / 2 * (1 - m);
-      var b2 = b1 + zw;
+      var zone_width = 0.8 * w; // 80% of the datafield. Don't go below 50%!
+      var b1 = w / 2 - m * zone_width;
+      var b2 = b1 + zone_width;
       // Sys.println("z:" + zone + " p:" + power + " %" + m + " b1:" + b1 + " b2:" + b2 + " w:" + w);
+
+      // Clip so that fillRectangle doesn't get confused.
+      if (b1 < 0) { b1 = 0; }
+      if (b2 > w) { b2 = w; }
 
       if (b1 > 0) {
         dc.setColor(ColorMyZone(zone - 1), color);

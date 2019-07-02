@@ -135,7 +135,7 @@ class PowerDataField extends Ui.DataField {
     var my_rainbow = [];
     var font_o, font2_o;
 
-    var powerValue;
+    var powerValue = -1;
 
     function MyZonesToDict(myzones_string)  {
       var p;
@@ -230,7 +230,6 @@ class PowerDataField extends Ui.DataField {
         power_array_next_index = 0;
         power_sum = 0;
         homealt_factor = altPower(1.0, HOMEALT);
-
     }
 
     function compute(info) {
@@ -343,7 +342,7 @@ class PowerDataField extends Ui.DataField {
              v.draw(dc);
           }
       } else {
-        Sys.println("Setting -");
+        // Sys.println("Setting -");
         v.setText("-");
       }
       v.draw(dc);

@@ -322,7 +322,7 @@ class PowerDataField extends Ui.DataField {
               l.setColor(Gfx.COLOR_WHITE);
               //m.setColor(Gfx.COLOR_WHITE);
               var zone = getPowerZone(powerValue);
-              zone_label = " z" + zone+1;
+              zone_label = " z" + (zone+1);
               drawZones(dc, zone, powerValue);
               var m = Ui.View.findDrawableById("mark");
               m.setText("^");
@@ -341,7 +341,6 @@ class PowerDataField extends Ui.DataField {
              v.draw(dc);
           }
       } else {
-        // Sys.println("Setting -");
         v.setText("-");
       }
       v.draw(dc);

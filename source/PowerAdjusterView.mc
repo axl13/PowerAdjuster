@@ -10,7 +10,6 @@ const a1 = 1.0899959d;
 const a2 = -0.0015119d;
 const a3 = 0.00000072674d;
 const rainbow = [
-     Gfx.COLOR_LT_GRAY,
      Gfx.COLOR_DK_BLUE,
      Gfx.COLOR_DK_GREEN,
      Gfx.COLOR_YELLOW,
@@ -323,7 +322,7 @@ class PowerDataField extends Ui.DataField {
               l.setColor(Gfx.COLOR_WHITE);
               //m.setColor(Gfx.COLOR_WHITE);
               var zone = getPowerZone(powerValue);
-              zone_label = " z" + zone;
+              zone_label = " z" + zone+1;
               drawZones(dc, zone, powerValue);
               var m = Ui.View.findDrawableById("mark");
               m.setText("^");

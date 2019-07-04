@@ -10,6 +10,7 @@ const a1 = 1.0899959d;
 const a2 = -0.0015119d;
 const a3 = 0.00000072674d;
 const rainbow = [
+    Gfx.COLOR_LT_GRAY,
     Gfx.COLOR_DK_BLUE,
     Gfx.COLOR_DK_GREEN,
     Gfx.COLOR_YELLOW,

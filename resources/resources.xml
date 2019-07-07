@@ -1,18 +1,29 @@
 <resources>
-	<bitmaps>
-		<bitmap id="id_pc" filename="images/pc.png" />
-	</bitmaps> 
-	<font id="outline_fnt" filename="fonts/font.fnt"/>
-	<font id="outline2_fnt" filename="fonts/font_2.fnt"/>
-		<layout id="PowerFieldLayout">
-		  <label id="label" x="left" y="bottom"
-				font="Graphics.FONT_SYSTEM_XTINY"
-				justification="Graphics.TEXT_JUSTIFY_LEFT"/>
-		  <label id="value" x="center" y="center"
-				font="Graphics.FONT_SYSTEM_NUMBER_THAI_HOT"
-				justification="Graphics.TEXT_JUSTIFY_CENTER"/>
-		  <label id="mark" x="center" y="top"
-				font="Graphics.FONT_SYSTEM_XTINY"
-				justification="Graphics.TEXT_JUSTIFY_CENTER"/>
-		  </layout>
+  <bitmaps>
+    <bitmap id="id_pc" filename="images/pc.png" />
+  </bitmaps> 
+  <font id="outline_fnt" filename="fonts/font.fnt"/>
+  <font id="outline2_fnt" filename="fonts/font_2.fnt"/>
+  <layout id="PowerFieldEdgeLayout">
+    <label id="label" x="left" y="bottom"
+           font="Graphics.FONT_SYSTEM_XTINY"
+           justification="Graphics.TEXT_JUSTIFY_LEFT"/>
+    <label id="value" x="center" y="center"
+           font="Graphics.FONT_SYSTEM_NUMBER_THAI_HOT"
+           justification="Graphics.TEXT_JUSTIFY_CENTER"/>
+    <label id="mark" x="center" y="top"
+           font="Graphics.FONT_SYSTEM_XTINY"
+           justification="Graphics.TEXT_JUSTIFY_CENTER"/>
+  </layout>
+  <layout id="PowerFieldWatchLayout">
+    <label id="label" x="center" y="top"
+           font="Graphics.FONT_TINY"
+           justification="Graphics.TEXT_JUSTIFY_CENTER"/>
+    <label id="value" x="center" y="center"
+           font="Graphics.FONT_NUMBER_MEDIUM"
+           justification="Graphics.TEXT_JUSTIFY_CENTER"/>
+    <label id="mark" x="center" y="bottom"
+           font="Graphics.FONT_SYSTEM_XTINY"
+           justification="Graphics.TEXT_JUSTIFY_CENTER"/>
+  </layout>
 </resources>

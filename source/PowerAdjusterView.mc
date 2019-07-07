@@ -276,7 +276,12 @@ class PowerDataField extends Ui.DataField {
   }
 
   function onLayout(dc) {
-    setLayout(Rez.Layouts.PowerFieldLayout(dc));
+    var setting = System.getDeviceSettings();
+    if (setting.screenShape == System.SCREEN_SHAPE_ROUND || setting.screenShape == System.SCREEN_SHAPE_SEMI_ROUND) {
+      setLayout(Rez.Layouts.PowerFieldWatchLayout(dc));
+    } else {
+      setLayout(Rez.Layouts.PowerFieldEdgeLayout(dc));
+    }
   }
 
   function drawZones(dc, zone, power) {

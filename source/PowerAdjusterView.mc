@@ -121,7 +121,14 @@ class PowerDataField extends Ui.DataField {
   const ALTPOWER = Application.getApp().getProperty("altPower_prop");
   const PURE_POWER = Application.getApp().getProperty("purePower_prop");
   const HOMEALT = Application.getApp().getProperty("homeElevation_prop").toNumber();
+  const CHART_WIDTH = 220;
   var homealt_factor = 1;
+  var dc_height = null;
+  var power_chart_array = new [CHART_WIDTH];
+  var power_chart_color_array = new [CHART_WIDTH];
+  var power_chart_array_complete = false;
+  var power_chart_array_next_index = 0;
+  var chart_bitmap = null;
   var power_array = new [DURATION];
   var power_array_next_index = 0;
   var power_sum = 0;
@@ -135,11 +142,23 @@ class PowerDataField extends Ui.DataField {
   var font_o, font2_o;
 
   var powerValue = -1;
+  var cadence_value = -1;
+
+  function AddPowerToChart(power, color) {
+    var power_factor = dc_height.toFloat() / my_zones[my_zones.size() - 1];
+    power_chart_array[power_chart_array_next_index] = (power_factor * power).toNumber();
+    power_chart_color_array[power_chart_array_next_index] = color;
+    ++power_chart_array_next_index;
+    if (power_chart_array_next_index >= CHART_WIDTH) {
+      power_chart_array_next_index = 0;
+      power_chart_array_complete = true;
+    }
+  }
 
   function MyZonesToDict(myzones_string)  {
     var p;
     myzones_string += ",";
-    Sys.println(myzones_string);
+    //Sys.println(myzones_string);
     p = myzones_string.find(",");
     while (p != null) {
       var zone_power = myzones_string.substring(0, p).toNumber();
@@ -218,13 +237,16 @@ class PowerDataField extends Ui.DataField {
     Ui.DataField.initialize();
     font_o = Ui.loadResource(Rez.Fonts.outline_fnt);
     font2_o = Ui.loadResource(Rez.Fonts.outline2_fnt);
-    bikePowerListener = new AntPlus.BikePowerListener();
-    bikePower = new AntPlus.BikePower(bikePowerListener);
+    if (PURE_POWER) {
+      bikePowerListener = new AntPlus.BikePowerListener();
+      bikePower = new AntPlus.BikePower(bikePowerListener);
+    }
     label = "Pwr." + DURATION.toString() + "s " + (ALTPOWER ? "(a)" : "") + (PURE_POWER ? "(p)" : "");
     for( var i = 0; i < DURATION; i += 1 ) {
       power_array[i] = 0;
     }
-    MyZonesToDict(Application.getApp().getProperty("myZones_prop"));
+    //MyZonesToDict(Application.getApp().getProperty("myZones_prop"));
+    MyZonesToDict("140,190,228,250,265,303,500");
     power_array_complete = false;
     power_array_next_index = 0;
     power_sum = 0;
@@ -233,6 +255,12 @@ class PowerDataField extends Ui.DataField {
 
   function compute(info) {
     var avgPower = 0;
+    
+    if (info.currentCadence != null) {
+      cadence_value = info.currentCadence;
+    } else {
+      cadence_value = -1;
+    }
 
     if(info.currentPower != null) {
       avgPower = POWER_MULTIPLIER * SLOPE.interpolate(info.currentPower);
@@ -273,15 +301,27 @@ class PowerDataField extends Ui.DataField {
     //Sys.println(watts);
     //Sys.println(my_zones);
     powerValue = Math.round(watts).toNumber();
+    
+    if (my_zones.size() > 0 && dc_height != null) {
+      AddPowerToChart(powerValue, ColorMyZone(getPowerZone(powerValue)));
+    }
   }
 
   function onLayout(dc) {
     var setting = System.getDeviceSettings();
     if (setting.screenShape == System.SCREEN_SHAPE_ROUND || setting.screenShape == System.SCREEN_SHAPE_SEMI_ROUND) {
-      setLayout(Rez.Layouts.PowerFieldWatchLayout(dc));
+      if (dc.getWidth() > dc.getHeight() * 1.2) {
+        //Sys.println("PowerFieldWideWatchLayout");
+        setLayout(Rez.Layouts.PowerFieldWideWatchLayout(dc));
+      } else {
+        //Sys.println("PowerFieldWatchLayout");
+        setLayout(Rez.Layouts.PowerFieldWatchLayout(dc));
+      }
     } else {
+      //Sys.println("PowerFieldEdgeLayout");
       setLayout(Rez.Layouts.PowerFieldEdgeLayout(dc));
     }
+    dc_height = dc.getHeight();
   }
 
   function drawZones(dc, zone, power) {
@@ -321,26 +361,77 @@ class PowerDataField extends Ui.DataField {
     v.setColor(fg_color);
     dc.setColor(fg_color, bg_color);
     dc.clear();
+    
+    if (my_zones.size() > 0) {
+      if (chart_bitmap != null) {
+//      var b = chart_bitmap.getDc();
+//      b.clear();
+//      var power_factor = b.getHeight().toFloat() / my_zones[my_zones.size() - 1];
+//      var width = power_chart_array_next_index > CHART_WIDTH ?
+//                      CHART_WIDTH :
+//                      power_chart_array_next_index;
+//      for (var i = 0; i < width; ++i) {
+//        // Sys.println("drawing line. " + i);
+//        b.setColor(power_chart_color_array[i], bg_color);
+//        var bar_height = (power_factor * power_chart_array[i]).toNumber();
+//        
+//        b.drawLine(i, 0, i, bar_height > b.getHeight() ? b.getHeight() : bar_height);
+//      }
+//      dc.drawBitmap(100, 0, chart_bitmap);
+      } else {
+        var width = power_chart_array_complete ? CHART_WIDTH : power_chart_array_next_index;
+        var lowest_x = CHART_WIDTH - width + (dc.getWidth() - CHART_WIDTH) / 2;
+        var index = power_chart_array_complete ? power_chart_array_next_index : 0;
+        for (var i = 0; i < width; ++i, ++index) {
+          // Sys.println("drawing line. " + i);
+          if (index >= CHART_WIDTH) {
+            index -= CHART_WIDTH;
+          }
+          dc.setColor(power_chart_color_array[index], bg_color);
+          dc.drawLine(lowest_x + i, dc_height, lowest_x + i, dc_height - (power_chart_array[index] > dc_height ? dc_height : power_chart_array[index]));
+        }
+      }
+    }
+    
+    var c = Ui.View.findDrawableById("cadence");
+    if (c != null) {
+      c.setColor(fg_color);
+      // Cadence.
+      if (cadence_value < 0) {
+        c.setText("-");
+      } else {
+        c.setText(cadence_value.toString());
+      }
+      c.draw(dc);
+      //Sys.println("drawing c. " + cadence_value + ", locX " + c.locX + ", locY " + c.locY + ", width " + c.width + ", height " + c.height);
+    }
+    // Power.
     if (powerValue > -1) {
-      if (my_zones.size() > 0) {
+      if (false && my_zones.size() > 0) {
+        v.setText("");
+        var zone = getPowerZone(powerValue);
+        var bar_height = powerValue.toFloat() / my_zones[my_zones.size() - 1];
+        if (bar_height > 1) { bar_height = 1; }
+        dc.setColor(ColorMyZone(zone), Graphics.COLOR_TRANSPARENT);
+        dc.fillRectangle(0, 0, 100, dc.getHeight() * bar_height);
         dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
         l.setColor(Gfx.COLOR_WHITE);
         //m.setColor(Gfx.COLOR_WHITE);
-        var zone = getPowerZone(powerValue);
         zone_label = " z" + (zone+1);
-        drawZones(dc, zone, powerValue);
+        // drawZones(dc, zone, powerValue);
         var m = Ui.View.findDrawableById("mark");
-        m.setText("^");
-        v.setText("");
-        m.draw(dc);
-        dc.drawText(dc.getWidth() /2 , dc.getHeight()/2, font_o,
+        if (m != null) {
+          m.setText("^");
+          m.draw(dc);
+        }
+        dc.drawText(dc.getWidth(), dc.getHeight() / 2, font_o,
                     powerValue.toString(),
-                    Gfx.TEXT_JUSTIFY_CENTER | Gfx.TEXT_JUSTIFY_VCENTER);
+                    Gfx.TEXT_JUSTIFY_RIGHT | Gfx.TEXT_JUSTIFY_VCENTER);
 
         dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(dc.getWidth() /2 , dc.getHeight()/2, font2_o,
+        dc.drawText(dc.getWidth(), dc.getHeight()/2, font2_o,
                     powerValue.toString(),
-                    Gfx.TEXT_JUSTIFY_CENTER | Gfx.TEXT_JUSTIFY_VCENTER);
+                    Gfx.TEXT_JUSTIFY_RIGHT | Gfx.TEXT_JUSTIFY_VCENTER);
       } else {
         v.setText(powerValue.toString());
         v.draw(dc);

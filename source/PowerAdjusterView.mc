@@ -230,7 +230,6 @@ class PowerDataField extends Ui.DataField {
       power_array[i] = 0;
     }
     MyZonesToDict(Application.getApp().getProperty("myZones_prop"));
-    //MyZonesToDict("140,190,230,250,265,310,530");
     power_array_complete = false;
     power_array_next_index = 0;
     power_sum = 0;
@@ -364,12 +363,12 @@ class PowerDataField extends Ui.DataField {
     // Power.
     if (powerValue > -1) {
       if (ALT_FONT && has_chart) {
-        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+        dc.setColor(bg_color, Graphics.COLOR_TRANSPARENT);
         dc.drawText(dc.getWidth() /2 , dc.getHeight()/2, font_o,
                     powerValue.toString(),
                     Gfx.TEXT_JUSTIFY_CENTER | Gfx.TEXT_JUSTIFY_VCENTER);
 
-        dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_TRANSPARENT);
+        dc.setColor(fg_color, Graphics.COLOR_TRANSPARENT);
         dc.drawText(dc.getWidth() /2 , dc.getHeight()/2, font2_o,
                     powerValue.toString(),
                     Gfx.TEXT_JUSTIFY_CENTER | Gfx.TEXT_JUSTIFY_VCENTER);

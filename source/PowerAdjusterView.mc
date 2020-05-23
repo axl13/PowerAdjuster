@@ -362,7 +362,7 @@ class PowerDataField extends Ui.DataField {
     }
     // Power.
     if (powerValue > -1) {
-      if (ALT_FONT && has_chart) {
+      if (ALT_FONT && has_chart && c == null) {
         dc.setColor(bg_color, Graphics.COLOR_TRANSPARENT);
         dc.drawText(dc.getWidth() /2 , dc.getHeight()/2, font_o,
                     powerValue.toString(),

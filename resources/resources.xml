@@ -5,14 +5,22 @@
   <font id="outline_fnt" filename="fonts/font.fnt"/>
   <font id="outline2_fnt" filename="fonts/font_2.fnt"/>
   <layout id="PowerFieldEdgeLayout">
-    <label id="label" x="left" y="bottom"
-           font="Graphics.FONT_SYSTEM_XTINY"
-           justification="Graphics.TEXT_JUSTIFY_LEFT"/>
+    <label id="label" x="center" y="top"
+           font="Graphics.FONT_MEDIUM"
+           justification="Graphics.TEXT_JUSTIFY_CENTER"/>
+    <label id="value" x="center" y="bottom"
+           font="Graphics.FONT_SYSTEM_NUMBER_MEDIUM"
+           justification="Graphics.TEXT_JUSTIFY_CENTER"/>
+  </layout>
+  <layout id="PowerFieldEdgeChartLayout">
+    <label id="label" x="center" y="top"
+           font="Graphics.FONT_MEDIUM"
+           justification="Graphics.TEXT_JUSTIFY_CENTER"/>
     <label id="value" x="center" y="center"
            font="Graphics.FONT_SYSTEM_NUMBER_THAI_HOT"
            justification="Graphics.TEXT_JUSTIFY_CENTER"/>
-    <label id="mark" x="center" y="top"
-           font="Graphics.FONT_SYSTEM_XTINY"
+    <label id="chart" x="0" y="bottom"
+           font="Graphics.FONT_NUMBER_MEDIUM"
            justification="Graphics.TEXT_JUSTIFY_CENTER"/>
   </layout>
   <layout id="PowerFieldWatchLayout">
@@ -21,9 +29,6 @@
            justification="Graphics.TEXT_JUSTIFY_CENTER"/>
     <label id="value" x="center" y="center"
            font="Graphics.FONT_NUMBER_MEDIUM"
-           justification="Graphics.TEXT_JUSTIFY_CENTER"/>
-    <label id="mark" x="center" y="bottom"
-           font="Graphics.FONT_SYSTEM_XTINY"
            justification="Graphics.TEXT_JUSTIFY_CENTER"/>
   </layout>
   <layout id="PowerFieldWideWatchLayout">
@@ -36,5 +41,8 @@
     <label id="cadence" x="10" y="top"
            font="Graphics.FONT_NUMBER_MEDIUM"
            justification="Graphics.TEXT_JUSTIFY_LEFT"/>
+    <label id="chart" x="0" y="bottom"
+           font="Graphics.FONT_NUMBER_MEDIUM"
+           justification="Graphics.TEXT_JUSTIFY_CENTER"/>
   </layout>
 </resources>

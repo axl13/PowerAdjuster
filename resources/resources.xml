@@ -6,7 +6,7 @@
   <font id="outline2_fnt" filename="fonts/font_2.fnt"/>
   <layout id="PowerFieldEdgeLayout">
     <label id="label" x="center" y="top"
-           font="Graphics.FONT_MEDIUM"
+           font="Graphics.FONT_SMALL"
            justification="Graphics.TEXT_JUSTIFY_CENTER"/>
     <label id="value" x="center" y="bottom"
            font="Graphics.FONT_SYSTEM_NUMBER_MEDIUM"
@@ -14,7 +14,7 @@
   </layout>
   <layout id="PowerFieldEdgeChartLayout">
     <label id="label" x="center" y="top"
-           font="Graphics.FONT_MEDIUM"
+           font="Graphics.FONT_SMALL"
            justification="Graphics.TEXT_JUSTIFY_CENTER"/>
     <label id="value" x="center" y="center"
            font="Graphics.FONT_SYSTEM_NUMBER_THAI_HOT"

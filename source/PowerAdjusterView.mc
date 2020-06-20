@@ -378,8 +378,8 @@ class PowerDataField extends Ui.DataField {
       }
     } else {
       v.setText("-");
+      v.draw(dc);
     }
-    v.draw(dc);
     l.setText(label + zone_label);
     l.draw(dc);
   }

@@ -7,6 +7,7 @@
         <property id="multiplier" type="float">1.0</property>
         <property id="slope" type="string">100:100,300:300,400:400,600:600,800:800</property>
         <property id="purePower_prop" type="boolean">false</property>
+        <property id="altFont_prop" type="boolean">false</property>
     </properties>
 
     <strings>
@@ -17,28 +18,32 @@
        <string id="purePower_title">Show Pure Power</string>
        <string id="homeElevation_title">Home altitude</string>
        <string id="myZones_title">My Zones, comma separated thresholds</string>
+       <string id="altFont_title">Use alternative font over power chart</string>
     </strings>
 
     <settings>
-        <setting propertyKey="@Properties.duration" title="duration_title">
+        <setting propertyKey="@Properties.duration" title="@Strings.duration_title">
             <settingConfig type="numeric" min="1" max="1800"/>
         </setting>
-	 <setting propertyKey="@Properties.myZones_prop" title="myZones_title">
+        <setting propertyKey="@Properties.myZones_prop" title="@Strings.myZones_title">
             <settingConfig type="alphaNumeric" />
         </setting>   
-        <setting propertyKey="@Properties.altPower_prop" title="altPower_title">
+        <setting propertyKey="@Properties.altPower_prop" title="@Strings.altPower_title">
             <settingConfig type="boolean" />
         </setting>
-         <setting propertyKey="@Properties.homeElevation_prop" title="homeElevation_title">
+         <setting propertyKey="@Properties.homeElevation_prop" title="@Strings.homeElevation_title">
             <settingConfig type="numeric" min="0" max="9000" />
         </setting>
-      	<setting propertyKey="@Properties.multiplier" title="multiplier_title">
+        <setting propertyKey="@Properties.multiplier" title="@Strings.multiplier_title">
             <settingConfig type="numeric" />
         </setting>
-        <setting propertyKey="@Properties.slope" title="slope_title">
+        <setting propertyKey="@Properties.slope" title="@Strings.slope_title">
             <settingConfig type="alphaNumeric" />
         </setting>
-         <setting propertyKey="@Properties.purePower_prop" title="purePower_title">
+        <setting propertyKey="@Properties.purePower_prop" title="@Strings.purePower_title">
+            <settingConfig type="boolean" />
+        </setting>
+        <setting propertyKey="@Properties.altFont_prop" title="@Strings.altFont_title">
             <settingConfig type="boolean" />
         </setting>
    </settings>

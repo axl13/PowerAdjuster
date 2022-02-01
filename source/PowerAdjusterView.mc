@@ -138,7 +138,7 @@ class PowerDataField extends Ui.DataField {
   const CHART_MARGIN = 8;
   const CHART_WIDTH = System.getDeviceSettings().screenWidth - 2 * CHART_MARGIN;
   var homealt_factor = 1;
-  var dc_height = null;
+  var dc_height = 0;
 
   var power_chart_array = new [CHART_WIDTH];
   var power_chart_color_array = new [CHART_WIDTH];

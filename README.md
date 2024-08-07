@@ -1,5 +1,5 @@
 # PowerAdjuster
-Connect IQ Power Adjuster
+Connect IQ Power Adjuster.
 
 # Generate your key
 ```

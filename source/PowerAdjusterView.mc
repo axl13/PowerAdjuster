@@ -220,7 +220,7 @@ class PowerDataField extends Ui.DataField {
     font2_o = Ui.loadResource(Rez.Fonts.outline2_fnt);
     bikePowerListener = new AntPlus.BikePowerListener();
     bikePower = new AntPlus.BikePower(bikePowerListener);
-    label = "Pwr." + DURATION.toString() + "s " + (ALTPOWER ? "(a)" : "") + (PURE_POWER ? "(p)" : "");
+    label = "Pwr." + DURATION.toString() + "s " + (ALTPOWER ? "(a@"+HOMEALT.toString()+")": "m") + (PURE_POWER ? "(p)" : "");
     for( var i = 0; i < DURATION; i += 1 ) {
       power_array[i] = 0;
     }

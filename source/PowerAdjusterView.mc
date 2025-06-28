@@ -3,12 +3,18 @@ using Toybox.System as Sys;
 using Toybox.Math as Math;
 using Toybox.AntPlus as AntPlus;
 using Toybox.Graphics as Gfx;
+using Toybox.FitContributor as Fit;
 
+// Constants for acclimatized power model based on MacInnis et al. (2013).
+// % decrease in MAP = C2 * alt^2 + C1 * alt + C0
+const C0 = -0.06d;
+const C1 = 0.0027d;
+const C2 = 0.00000011d;
 
-const a0 = -174.1448622d;
-const a1 = 1.0899959d;
-const a2 = -0.0015119d;
-const a3 = 0.00000072674d;
+// Unacclimatized power model based on Bassett et al. (1999).
+// VO2max decreases by ~6.3% per 1000m.
+const UNACCLIMATIZED_FACTOR = 0.063d / 1000.0d;
+
 const rainbow = [
     Gfx.COLOR_LT_GRAY,
     Gfx.COLOR_DK_BLUE,
@@ -20,16 +26,47 @@ const rainbow = [
 // Color of the zone above the last value in myZones_prop.
 const nightmare_color = Gfx.COLOR_BLACK;
 
-function altPower(watts, alt) {
-  if (alt > 0) {
-    // pbar [mbar]= 0.76*EXP( -alt[m] / 7000 )*1000
-    var pbar = 0.76 * Math.pow(Math.E, alt / -7000.00) * 1000.00;
-    // %Vo2max= a0 + a1 * pbar + a2 * pbar ^2 + a3 * pbar ^3 (with pbar in mbar)
-    var vo2maxPCT = a0 + pbar * (a1 + pbar * (a2 + a3 * pbar));
-    return (watts / vo2maxPCT) * 100;
-  } else {
-    return watts;
-  }
+// Calculates the power reduction factor for a fully acclimatized athlete.
+function getAcclimatizedReductionFactor(alt) {
+    if (alt <= 0) { return 1.0; }
+    var percent_decrease = C2 * alt * alt + C1 * alt + C0;
+    if (percent_decrease < 0) { percent_decrease = 0; }
+    return 1.0 - (percent_decrease / 100.0);
+}
+
+// Adjusts power at a given altitude to the equivalent power at a target 'acclimatized' altitude.
+// This model assumes the athlete is fully acclimatized to 'acclimatizedAlt'.
+// @param watts Power measured at currentAlt
+// @param currentAlt The current altitude in meters
+// @param acclimatizedAlt The altitude the athlete is acclimatized to, in meters
+// @return Power equivalent at acclimatizedAlt
+function altPower(watts, currentAlt, acclimatizedAlt) {
+    if (currentAlt == null) { return watts; }
+
+    var adjustedWatts;
+    if (currentAlt > acclimatizedAlt) {
+        // Riding higher than acclimatization level.
+        // Adjust for the unacclimatized portion of the altitude.
+        var alt_diff = currentAlt - acclimatizedAlt;
+        var reduction_factor = 1.0 - (UNACCLIMATIZED_FACTOR * alt_diff);
+        
+        // Sanity check to avoid division by zero or nonsensical values
+        if (reduction_factor < 0.1) { return watts; }
+        adjustedWatts = watts / reduction_factor;
+    } else {
+        // Riding at or below acclimatization level.
+        // Convert to sea-level power first, then to power at acclimatizedAlt.
+        var reduction_at_current = getAcclimatizedReductionFactor(currentAlt);
+        
+        // Sanity check
+        if (reduction_at_current < 0.1) { return watts; }
+        var sea_level_watts = watts / reduction_at_current;
+        
+        var reduction_at_acclimatized = getAcclimatizedReductionFactor(acclimatizedAlt);
+        adjustedWatts = sea_level_watts * reduction_at_acclimatized;
+    }
+    
+    return adjustedWatts;
 }
 
 function chkPcnt(percent) {
@@ -115,13 +152,15 @@ class Slope {
 }
 
 class PowerDataField extends Ui.DataField {
+  // FIT Contributor Field Id
+  const ADJUSTED_POWER_FIELD_ID = 0;
+
   const POWER_MULTIPLIER = Application.getApp().getProperty("multiplier").toFloat();
   const DURATION = Application.getApp().getProperty("duration").toNumber();
   const SLOPE = new Slope(Application.getApp().getProperty("slope"));
   const ALTPOWER = Application.getApp().getProperty("altPower_prop");
   const PURE_POWER = Application.getApp().getProperty("purePower_prop");
-  const HOMEALT = Application.getApp().getProperty("homeElevation_prop").toNumber();
-  var homealt_factor = 1;
+  const ACCLIMATIZED_ALT = Application.getApp().getProperty("homeElevation_prop").toNumber();
   var power_array = new [DURATION];
   var power_array_next_index = 0;
   var power_sum = 0;
@@ -134,6 +173,7 @@ class PowerDataField extends Ui.DataField {
   var my_rainbow = [];
   var font_o, font2_o;
 
+  var adjustedPowerField = null;
   var powerValue = -1;
 
   function MyZonesToDict(myzones_string)  {
@@ -220,7 +260,11 @@ class PowerDataField extends Ui.DataField {
     font2_o = Ui.loadResource(Rez.Fonts.outline2_fnt);
     bikePowerListener = new AntPlus.BikePowerListener();
     bikePower = new AntPlus.BikePower(bikePowerListener);
-    label = "Pwr." + DURATION.toString() + "s " + (ALTPOWER ? "(a@"+HOMEALT.toString()+")": "m") + (PURE_POWER ? "(p)" : "");
+    var alt_string = "";
+    if (ALTPOWER) {
+        alt_string = " (a@" + ACCLIMATIZED_ALT.toString() + "m)";
+    }
+    label = "Pwr." + DURATION.toString() + "s" + alt_string + (PURE_POWER ? "(p)" : "");
     for( var i = 0; i < DURATION; i += 1 ) {
       power_array[i] = 0;
     }
@@ -228,7 +272,15 @@ class PowerDataField extends Ui.DataField {
     power_array_complete = false;
     power_array_next_index = 0;
     power_sum = 0;
-    homealt_factor = altPower(1.0, HOMEALT);
+
+    if (ALTPOWER) {
+        adjustedPowerField = createField(
+            "adjusted_power",
+            ADJUSTED_POWER_FIELD_ID,
+            Fit.DATA_TYPE_UINT16,
+            {:mesgType => Fit.MESG_TYPE_RECORD, :units => "W"}
+        );
+    }
   }
 
   function compute(info) {
@@ -250,29 +302,29 @@ class PowerDataField extends Ui.DataField {
         }
       }
       if (ALTPOWER) {
-        avgPower = altPower(avgPower, info.altitude) / homealt_factor;
+        avgPower = altPower(avgPower, info.altitude, ACCLIMATIZED_ALT);
       }
+
+      power_sum -= power_array[power_array_next_index];
+      power_array[power_array_next_index] = avgPower;
+      power_sum += avgPower;
+      ++power_array_next_index;
+      if (power_array_next_index == DURATION) {
+        power_array_next_index = 0;
+        power_array_complete = true;
+      }
+      var watts = power_sum / (power_array_complete ? DURATION : power_array_next_index);
+      powerValue = Math.round(watts).toNumber();
     } else {
       powerValue = -1;
-      return;
     }
 
-    power_sum -= power_array[power_array_next_index];
-    power_array[power_array_next_index] = avgPower;
-    power_sum += avgPower;
-    ++power_array_next_index;
-    if (power_array_next_index == DURATION) {
-      power_array_next_index = 0;
-      power_array_complete = true;
+    // Only record to FIT file if the feature is enabled
+    if (ALTPOWER) {
+        // Ensure we don't write a negative value to the unsigned FIT field.
+        var valueToRecord = (powerValue >= 0) ? powerValue : 0;
+        adjustedPowerField.setData(valueToRecord);
     }
-
-    //Sys.println(POWER_MULTIPLIER);
-    // Sys.println("" + power_sum + "," + avgPower + "," + DURATION + "," + info.altitude);
-    var watts = power_sum / (power_array_complete ? DURATION : power_array_next_index);
-    //Sys.println(info.currentPower);
-    //Sys.println(watts);
-    //Sys.println(my_zones);
-    powerValue = Math.round(watts).toNumber();
   }
 
   function onLayout(dc) {

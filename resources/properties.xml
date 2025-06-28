@@ -15,7 +15,7 @@
        <string id="slope_title">Comma separated power pairs for nonlinear regression (w1:w1',w2:w2')</string> 
        <string id="altPower_title">Adjust for altitude</string>
        <string id="purePower_title">Show Pure Power</string>
-       <string id="homeElevation_title">Home altitude</string>
+       <string id="homeElevation_title">Acclimatized Altitude (m)</string>
        <string id="myZones_title">My Zones, comma separated thresholds</string>
     </strings>
 

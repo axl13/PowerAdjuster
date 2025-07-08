@@ -1,0 +1,13 @@
+<resources>
+    <fitContributions>
+        <fitField
+            id="0"
+            displayInChart="true"
+            sortOrder="0"
+            precision="0"
+            chartTitle="@Strings.adjusted_power_chart_title"
+            dataLabel="@Strings.adjusted_power_label"
+            unitLabel="@Strings.watts_unit_label"
+            fillColor="#F27C0E" />
+    </fitContributions>
+</resources>

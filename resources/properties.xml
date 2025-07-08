@@ -10,36 +10,40 @@
     </properties>
 
     <strings>
-       <string id="duration_title">Average power over (sec)</string>
-       <string id="multiplier_title">Power multiplier</string>
-       <string id="slope_title">Comma separated power pairs for nonlinear regression (w1:w1',w2:w2')</string> 
-       <string id="altPower_title">Adjust for altitude</string>
-       <string id="purePower_title">Show Pure Power</string>
-       <string id="homeElevation_title">Acclimatized Altitude (m)</string>
-       <string id="myZones_title">My Zones, comma separated thresholds</string>
+        <string id="duration_title">Average power over (sec)</string>
+        <string id="multiplier_title">Power multiplier</string>
+        <string id="slope_title">Comma separated power pairs for nonlinear regression
+            (w1:w1',w2:w2')</string>
+        <string id="altPower_title">Adjust for altitude</string>
+        <string id="purePower_title">Show Pure Power</string>
+        <string id="homeElevation_title">Acclimatized Altitude (m)</string>
+        <string id="myZones_title">My Zones, comma separated thresholds</string>
+        <string id="adjusted_power_label">Adj. Power</string>
+        <string id="adjusted_power_chart_title">Adjusted Power</string>
+        <string id="watts_unit_label">W</string>
     </strings>
 
     <settings>
-        <setting propertyKey="@Properties.duration" title="duration_title">
-            <settingConfig type="numeric" min="1" max="1800"/>
+        <setting propertyKey="@Properties.duration" title="@Strings.duration_title">
+            <settingConfig type="numeric" min="1" max="1800" />
         </setting>
-	 <setting propertyKey="@Properties.myZones_prop" title="myZones_title">
+        <setting propertyKey="@Properties.myZones_prop" title="@Strings.myZones_title">
             <settingConfig type="alphaNumeric" />
-        </setting>   
-        <setting propertyKey="@Properties.altPower_prop" title="altPower_title">
+        </setting>
+        <setting propertyKey="@Properties.altPower_prop" title="@Strings.altPower_title">
             <settingConfig type="boolean" />
         </setting>
-         <setting propertyKey="@Properties.homeElevation_prop" title="homeElevation_title">
+        <setting propertyKey="@Properties.homeElevation_prop" title="@Strings.homeElevation_title">
             <settingConfig type="numeric" min="0" max="9000" />
         </setting>
-      	<setting propertyKey="@Properties.multiplier" title="multiplier_title">
+        <setting propertyKey="@Properties.multiplier" title="@Strings.multiplier_title">
             <settingConfig type="numeric" />
         </setting>
-        <setting propertyKey="@Properties.slope" title="slope_title">
+        <setting propertyKey="@Properties.slope" title="@Strings.slope_title">
             <settingConfig type="alphaNumeric" />
         </setting>
-         <setting propertyKey="@Properties.purePower_prop" title="purePower_title">
+        <setting propertyKey="@Properties.purePower_prop" title="@Strings.purePower_title">
             <settingConfig type="boolean" />
         </setting>
-   </settings>
+    </settings>
 </resources>

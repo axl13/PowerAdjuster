@@ -110,10 +110,13 @@
     "valyrian" : {
       "purePower_title" : "Show Pure Power",
       "multiplier_title" : "Power multiplier",
-      "homeElevation_title" : "Home altitude",
-      "slope_title" : "Comma separated power pairs for nonlinear regression (w1:w1',w2:w2')",
+      "watts_unit_label" : "W",
+      "homeElevation_title" : "Acclimatized Altitude (m)",
+      "slope_title" : "Comma separated power pairs for nonlinear regression\n            (w1:w1',w2:w2')",
       "altPower_title" : "Adjust for altitude",
+      "adjusted_power_chart_title" : "Adjusted Power",
       "duration_title" : "Average power over (sec)",
+      "adjusted_power_label" : "Adj. Power",
       "myZones_title" : "My Zones, comma separated thresholds",
       "PowerAdjuster" : "Power Adjuster"
     }

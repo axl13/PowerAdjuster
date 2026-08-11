@@ -4,16 +4,13 @@ using Toybox.Math as Math;
 using Toybox.AntPlus as AntPlus;
 using Toybox.Graphics as Gfx;
 using Toybox.FitContributor as Fit;
+using Toybox.UserProfile as UserProfile;
 
-// Constants for acclimatized power model based on MacInnis et al. (2013).
-// % decrease in MAP = C2 * alt^2 + C1 * alt + C0
-const C0 = -0.06d;
-const C1 = 0.0027d;
-const C2 = 0.00000011d;
-
-// Unacclimatized power model based on Bassett et al. (1999).
-// VO2max decreases by ~6.3% per 1000m.
-const UNACCLIMATIZED_FACTOR = 0.063d / 1000.0d;
+// MacInnis et al. (2015) acute (unacclimatized) MAP loss coefficients.
+// % decrease in MAP = MC_C2 * alt^2 + MC_C1 * alt + MC_C0
+const MC_C0 = -0.06d;
+const MC_C1 = 0.0027d;
+const MC_C2 = 0.0000011d; // Corrected: 1.1e-6 (5 zeros)
 
 const rainbow = [
     Gfx.COLOR_LT_GRAY,
@@ -25,49 +22,6 @@ const rainbow = [
     Gfx.COLOR_PURPLE ];
 // Color of the zone above the last value in myZones_prop.
 const nightmare_color = Gfx.COLOR_BLACK;
-
-// Calculates the power reduction factor for a fully acclimatized athlete.
-function getAcclimatizedReductionFactor(alt) {
-    if (alt <= 0) { return 1.0; }
-    var percent_decrease = C2 * alt * alt + C1 * alt + C0;
-    if (percent_decrease < 0) { percent_decrease = 0; }
-    return 1.0 - (percent_decrease / 100.0);
-}
-
-// Adjusts power at a given altitude to the equivalent power at a target 'acclimatized' altitude.
-// This model assumes the athlete is fully acclimatized to 'acclimatizedAlt'.
-// @param watts Power measured at currentAlt
-// @param currentAlt The current altitude in meters
-// @param acclimatizedAlt The altitude the athlete is acclimatized to, in meters
-// @return Power equivalent at acclimatizedAlt
-function altPower(watts, currentAlt, acclimatizedAlt) {
-    if (currentAlt == null) { return watts; }
-
-    var adjustedWatts;
-    if (currentAlt > acclimatizedAlt) {
-        // Riding higher than acclimatization level.
-        // Adjust for the unacclimatized portion of the altitude.
-        var alt_diff = currentAlt - acclimatizedAlt;
-        var reduction_factor = 1.0 - (UNACCLIMATIZED_FACTOR * alt_diff);
-        
-        // Sanity check to avoid division by zero or nonsensical values
-        if (reduction_factor < 0.1) { return watts; }
-        adjustedWatts = watts / reduction_factor;
-    } else {
-        // Riding at or below acclimatization level.
-        // Convert to sea-level power first, then to power at acclimatizedAlt.
-        var reduction_at_current = getAcclimatizedReductionFactor(currentAlt);
-        
-        // Sanity check
-        if (reduction_at_current < 0.1) { return watts; }
-        var sea_level_watts = watts / reduction_at_current;
-        
-        var reduction_at_acclimatized = getAcclimatizedReductionFactor(acclimatizedAlt);
-        adjustedWatts = sea_level_watts * reduction_at_acclimatized;
-    }
-    
-    return adjustedWatts;
-}
 
 function chkPcnt(percent) {
   return (percent >= 0) and (percent <= 100);
@@ -161,6 +115,7 @@ class PowerDataField extends Ui.DataField {
   const ALTPOWER = Application.getApp().getProperty("altPower_prop");
   const PURE_POWER = Application.getApp().getProperty("purePower_prop");
   const ACCLIMATIZED_ALT = Application.getApp().getProperty("homeElevation_prop").toNumber();
+  var mEliteFactor = 1.0;
   var power_array = new [DURATION];
   var power_array_next_index = 0;
   var power_sum = 0;
@@ -251,11 +206,61 @@ class PowerDataField extends Ui.DataField {
     }
   }
 
+  // Calculates the elite athlete correction factor dynamically from the user profile's VO2max.
+  // Returns 1.0 for normal fitness (VO2max <= 50) up to 1.5 max, to account for EIAH.
+  function getEliteFactor() {
+    var vo2 = null;
+    try {
+        var profile = UserProfile.getProfile();
+        if (profile has :vo2maxCycling) {
+            vo2 = profile.vo2maxCycling;
+        }
+        if (vo2 == null and (profile has :vo2maxRunning)) {
+            vo2 = profile.vo2maxRunning;
+        }
+    } catch (ex) {
+        // has check or getProfile failed on this device
+    }
+
+    var factor = 1.0f;
+    if (vo2 != null and vo2 > 50) {
+        factor = 1.0f + (vo2 - 50) * 0.0184f;
+        if (factor > 1.5f) { factor = 1.5f; }
+    }
+    return factor;
+  }
+
+  // Calculates the acute power reduction factor (fraction of sea level power).
+  function getAcuteCapacityFactor(alt) {
+    if (alt <= 0) { return 1.0; }
+    var percent_decrease = MC_C2 * alt * alt + MC_C1 * alt + MC_C0;
+    percent_decrease = percent_decrease * mEliteFactor;
+    if (percent_decrease < 0) { percent_decrease = 0.0; }
+    return 1.0 - (percent_decrease / 100.0);
+  }
+
+  // Adjusts power at a given altitude to the equivalent power at a target 'acclimatized' altitude.
+  // If the current altitude is at or below the acclimatized altitude, no adjustment is applied.
+  // If the current altitude is above the acclimatized altitude, power is scaled up using the ratio of acute capacities.
+  function altPower(watts, currentAlt, acclimatizedAlt) {
+    if (currentAlt == null or acclimatizedAlt == null) { return watts; }
+    if (currentAlt <= acclimatizedAlt) { return watts; }
+
+    var cap_current = getAcuteCapacityFactor(currentAlt);
+    var cap_acclimated = getAcuteCapacityFactor(acclimatizedAlt);
+
+    // Sanity check to avoid division by zero or nonsensical values
+    if (cap_current < 0.1) { return watts; }
+
+    return watts * (cap_acclimated / cap_current);
+  }
+
   // Constructor
   function initialize() {
     //Sys.println(POWER_MULTIPLIER);
     //Sys.println(Application.getApp().getProperty("slope"));
     Ui.DataField.initialize();
+    mEliteFactor = getEliteFactor();
     font_o = Ui.loadResource(Rez.Fonts.outline_fnt);
     font2_o = Ui.loadResource(Rez.Fonts.outline2_fnt);
     bikePowerListener = new AntPlus.BikePowerListener();

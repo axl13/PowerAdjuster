@@ -3,6 +3,8 @@ using Toybox.WatchUi as Ui;
 
 
 class PowerAdjuster extends App.AppBase {
+    var mView;
+
     function initialize() {
         AppBase.initialize();
     }
@@ -12,15 +14,23 @@ class PowerAdjuster extends App.AppBase {
     }
 
     function getInitialView() {
-        return [new PowerDataField()];
+        mView = new PowerDataField();
+        return [mView];
     }
 
     function onStop(state) {
+        // Persist the acclimatization model so it survives power cycles
+        if (mView != null && mView has :saveState) {
+            mView.saveState();
+        }
         return false;
     }
 
     function onSettingsChanged()
     {
+        if (mView != null && mView has :onSettingsChanged) {
+            mView.onSettingsChanged();
+        }
         Ui.requestUpdate();
     }
 }

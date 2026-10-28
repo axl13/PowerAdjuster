@@ -1,49 +1,47 @@
 <resources>
     <properties>
         <property id="duration" type="number">5</property>
+        <property id="altPower_prop" type="boolean">true</property>
+        <property id="homeAlt_prop" type="number">0</property>
+        <property id="cp_prop" type="number">0</property>
+        <property id="wPrime_prop" type="number">0</property>
         <property id="myZones_prop" type="string"></property>
-        <property id="altPower_prop" type="boolean">false</property>
-        <property id="homeElevation_prop" type="number">0</property>
-        <property id="multiplier" type="float">1.0</property>
-        <property id="slope" type="string">100:100,300:300,400:400,600:600,800:800</property>
-        <property id="purePower_prop" type="boolean">false</property>
     </properties>
 
     <strings>
         <string id="duration_title">Average power over (sec)</string>
-        <string id="multiplier_title">Power multiplier</string>
-        <string id="slope_title">Comma separated power pairs for nonlinear regression
-            (w1:w1',w2:w2')</string>
-        <string id="altPower_title">Adjust for altitude</string>
-        <string id="purePower_title">Show Pure Power</string>
-        <string id="homeElevation_title">Acclimatized Altitude (m)</string>
-        <string id="myZones_title">My Zones, comma separated thresholds</string>
+        <string id="altPower_title">Adjust power for altitude</string>
+        <string id="homeAlt_title">Home altitude (m), 0 = auto-learn</string>
+        <string id="cp_title">Critical Power / FTP (W), 0 = Garmin FTP</string>
+        <string id="wPrime_title">W' anaerobic capacity (J), 0 = auto-learn</string>
+        <string id="myZones_title">Zone ceilings W, comma separated (blank = Garmin power zones)</string>
         <string id="adjusted_power_label">Adj. Power</string>
         <string id="adjusted_power_chart_title">Adjusted Power</string>
         <string id="watts_unit_label">W</string>
+        <string id="wbal_label">W' Bal</string>
+        <string id="wbal_chart_title">W' Balance</string>
+        <string id="wprime_label">W' (learned)</string>
+        <string id="kj_unit_label">kJ</string>
     </strings>
 
     <settings>
         <setting propertyKey="@Properties.duration" title="@Strings.duration_title">
-            <settingConfig type="numeric" min="1" max="1800" />
-        </setting>
-        <setting propertyKey="@Properties.myZones_prop" title="@Strings.myZones_title">
-            <settingConfig type="alphaNumeric" />
+            <settingConfig type="numeric" min="1" max="300" />
         </setting>
         <setting propertyKey="@Properties.altPower_prop" title="@Strings.altPower_title">
             <settingConfig type="boolean" />
         </setting>
-        <setting propertyKey="@Properties.homeElevation_prop" title="@Strings.homeElevation_title">
-            <settingConfig type="numeric" min="0" max="9000" />
+        <setting propertyKey="@Properties.homeAlt_prop" title="@Strings.homeAlt_title">
+            <settingConfig type="numeric" min="0" max="5000" />
         </setting>
-        <setting propertyKey="@Properties.multiplier" title="@Strings.multiplier_title">
-            <settingConfig type="numeric" />
+        <setting propertyKey="@Properties.cp_prop" title="@Strings.cp_title">
+            <settingConfig type="numeric" min="0" max="600" />
         </setting>
-        <setting propertyKey="@Properties.slope" title="@Strings.slope_title">
+        <setting propertyKey="@Properties.wPrime_prop" title="@Strings.wPrime_title">
+            <settingConfig type="numeric" min="0" max="45000" />
+        </setting>
+        <setting propertyKey="@Properties.myZones_prop" title="@Strings.myZones_title">
             <settingConfig type="alphaNumeric" />
-        </setting>
-        <setting propertyKey="@Properties.purePower_prop" title="@Strings.purePower_title">
-            <settingConfig type="boolean" />
         </setting>
     </settings>
 </resources>

@@ -26,14 +26,17 @@
             <iq:product id="edge1030plus"/>
             <iq:product id="edge1040"/>
             <iq:product id="edge1050"/>
+            <iq:product id="edge1060"/>
             <iq:product id="edge130"/>
             <iq:product id="edge130plus"/>
             <iq:product id="edge520plus"/>
             <iq:product id="edge530"/>
             <iq:product id="edge540"/>
+            <iq:product id="edge550"/>
             <iq:product id="edge820"/>
             <iq:product id="edge830"/>
             <iq:product id="edge840"/>
+            <iq:product id="edge850"/>
             <iq:product id="edge_1000"/>
             <iq:product id="edge_520"/>
             <iq:product id="edgeexplore"/>
@@ -41,6 +44,7 @@
             <iq:product id="edgemtb"/>
             <iq:product id="enduro"/>
             <iq:product id="enduro3"/>
+            <iq:product id="enduro4"/>
             <iq:product id="epix2"/>
             <iq:product id="epix2pro42mm"/>
             <iq:product id="epix2pro47mm"/>
@@ -68,6 +72,13 @@
             <iq:product id="fenix847mm"/>
             <iq:product id="fenix8solar47mm"/>
             <iq:product id="fenix8solar51mm"/>
+            <iq:product id="fenix943mm"/>
+            <iq:product id="fenix947mm"/>
+            <iq:product id="fenix9pro43mm"/>
+            <iq:product id="fenix9pro47mm"/>
+            <iq:product id="fenix9pro51mm"/>
+            <iq:product id="fenix9prosolar47mm"/>
+            <iq:product id="fenix9prosolar51mm"/>
             <iq:product id="fenixchronos"/>
             <iq:product id="fenixe"/>
             <iq:product id="fr165"/>
@@ -141,7 +152,6 @@
             <iq:product id="vivoactive_hr"/>
         </iq:products>
         <iq:permissions>
-            <iq:uses-permission id="Ant"/>
             <iq:uses-permission id="FitContributor"/>
             <iq:uses-permission id="SensorHistory"/>
             <iq:uses-permission id="UserProfile"/>
